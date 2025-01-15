@@ -1,0 +1,17 @@
+FROM ubuntu:22.04
+WORKDIR /main
+COPY ./deploy deploy
+COPY ./reproducibility/containers/pg_entrypoint.sh entrypoint.sh
+RUN chmod +x entrypoint.sh
+WORKDIR /main/deploy
+RUN sed -i'' "s/sudo systemctl restart postgresql/service postgresql restart/g" install_postgres.sh &&\
+    sed -i'' "s/PG_VERSIONS=.*/PG_VERSIONS=(16)/g" install_postgres.sh &&\
+    sed -i'' "s/PORTS=.*/PORTS=(5432)/g" install_postgres.sh
+RUN chmod +x *.sh &&\
+    apt update; apt install -y sudo &&\
+    ./install_postgres.sh &&\
+    ./install_electric.sh &&\
+    ./install_metrics_server.sh
+WORKDIR /main/deploy/electric
+HEALTHCHECK --interval=3s --timeout=1s --start-period=5s --retries=1 CMD [ "psql", "-U", "postgres" ]
+ENTRYPOINT [ "/main/entrypoint.sh" ]

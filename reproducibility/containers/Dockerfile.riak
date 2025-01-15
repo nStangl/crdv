@@ -1,0 +1,14 @@
+FROM ubuntu:22.04
+WORKDIR /main
+COPY ./deploy deploy
+COPY ./reproducibility/containers/riak_entrypoint.sh entrypoint.sh
+RUN chmod +x entrypoint.sh
+WORKDIR /main/deploy
+RUN chmod +x *.sh &&\
+    apt update; apt install -y sudo &&\
+    ./install_riak.sh &&\
+    ./install_metrics_server.sh &&\
+    ./install_network_partition_server.sh
+WORKDIR /main/deploy/riak
+HEALTHCHECK --interval=3s --timeout=1s --start-period=5s --retries=1 CMD [ "/main/deploy/riak/started.sh" ]
+ENTRYPOINT [ "/main/entrypoint.sh" ]

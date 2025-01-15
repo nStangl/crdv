@@ -1,0 +1,4 @@
+engine,type,name,ip,bytes_sent,bytes_recv,total
+pg_crdt_remote,map,$\mathregular{Get_1}$,169.254.169.254,248,527,775
+pg_crdt_remote,map,$\mathregular{Get_1}$,172.31.31.195,15436980,4145075,19582055
+pg_crdt_remote,map,$\mathregular{Get_1}$,99.78.176.216,3082,6189,9271

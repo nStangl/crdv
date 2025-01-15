@@ -1,0 +1,2 @@
+benchmark,time,runs,noReload,workers,isolation,sites,counters,engine,initialOpsPerStructure,itemsPerStructure,endSize,startSize,rt,tps,ct,ar,rtP95
+delay,60,1,true,64,RC,3,100,riak,0,0,0,0,0.017468,3662.491,197809,0.000000,0.037640

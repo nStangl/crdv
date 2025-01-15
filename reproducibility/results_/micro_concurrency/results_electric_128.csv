@@ -1,0 +1,2 @@
+benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,endSize,startSize,rt,tps,ct,ar,rtP95
+micro,60,3,true,64,RC,1,electric,128,1,8257536,51232768,0.006164,10374.722,560264,0.000000,0.012405

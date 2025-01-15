@@ -1,0 +1,2 @@
+benchmark,time,runs,noReload,workers,isolation,sites,counters,engine,mergeBatchSize,mergeDelta,mergeParallelism,readMode,writeMode,endSize,startSize,rt,tps,ct,ar,rtP95
+delay,60,1,true,16,RC,3,100,crdv-sync,10000,0.05,1,local,sync,417792,0,0.002253,7083.002,382489,0.000000,0.003841

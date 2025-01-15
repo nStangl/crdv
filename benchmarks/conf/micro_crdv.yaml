@@ -1,0 +1,90 @@
+# general
+connection:
+- host=localhost port=5432 dbname=testdb1 user=postgres password=postgres sslmode=disable
+- host=localhost port=5432 dbname=testdb2 user=postgres password=postgres sslmode=disable
+- host=localhost port=5432 dbname=testdb3 user=postgres password=postgres sslmode=disable
+time: 60
+warmup: 3
+cooldown: 3
+transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
+runs: 1
+noReload: true
+workers: [9]
+isolation: READ COMMITTED
+benchmark: micro
+engine: crdv
+vacuumFull: false
+
+# read and write modes
+# read mode - local or all
+# write mode - sync or async
+modes: {readMode: local, writeMode: sync}
+# number of partitions considered while merging
+mergeParallelism: 1
+# time between merges (seconds)
+mergeDelta: 1
+# max batch size while merging a partition; each batch runs in a separate transaction
+mergeBatchSize: 1000
+# whether or not to periodically log the number of unmerged rows
+trackUnmergedRows: false
+# discard unmerged rows when the benchmark finishes, so it can exit faster (note: when enabled,
+# different sites will end up with different data). if disabled, the benchmark will wait until all
+# data in all sites have been merged.
+discardUnmergedWhenFinished: false
+
+# benchmark specific
+# number of items for each structure type
+itemsPerStructure: 100
+# number of elements in each structure (valid for set, map, and list)
+initialOpsPerStructure: 100
+# list of types to populate (types which are not evaluated can skip the population step to speed up the setup process)
+typesToPopulate: [register, set, map, list, counter]
+# number of bytes per value (for registers, map values, and list values)
+valueLength: 4
+operations:
+- name: counterGet
+  weight: 1
+- name: counterInc
+  weight: 1
+- name: counterDec
+  weight: 1
+- name: registerGet
+  weight: 1
+- name: registerSet
+  weight: 1
+- name: setGet
+  weight: 1
+- name: setContains
+  weight: 1
+- name: setAdd
+  weight: 1
+- name: setRmv
+  weight: 1
+- name: setClear
+  weight: 0
+- name: mapGet
+  weight: 1
+- name: mapValue
+  weight: 1
+- name: mapContains
+  weight: 1
+- name: mapAdd
+  weight: 1
+- name: mapRmv
+  weight: 1
+- name: mapClear
+  weight: 0
+- name: listGet
+  weight: 1
+- name: listGetAt
+  weight: 1
+- name: listAdd
+  weight: 1
+- name: listAppend
+  weight: 1
+- name: listPrepend
+  weight: 1
+- name: listRmv
+  weight: 1
+- name: listClear
+  weight: 0

@@ -1,0 +1,9 @@
+benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,mergeBatchSize,mergeDelta,mergeParallelism,readMode,writeMode,endSize,startSize,rt,tps,ct,ar,rtP95
+micro,60,3,false,1,RC,1,crdv-async,1,100000,1000,1,1,all,async,15966208,15605760,0.001137,877.463,47384,0.000000,0.001946
+micro,60,3,false,1,RC,1,crdv-async,2,50000,1000,1,1,all,async,16064512,15630336,0.001140,875.243,47264,0.000000,0.001976
+micro,60,3,false,1,RC,1,crdv-async,4,25000,1000,1,1,all,async,15949824,15581184,0.001139,874.997,47251,0.000000,0.001941
+micro,60,3,false,1,RC,1,crdv-async,8,12500,1000,1,1,all,async,15941632,15548416,0.001096,911.410,49216,0.000000,0.001928
+micro,60,3,false,1,RC,1,crdv-async,16,6250,1000,1,1,all,async,15892480,15532032,0.001141,873.986,47196,0.000000,0.001946
+micro,60,3,false,1,RC,1,crdv-async,32,3125,1000,1,1,all,async,15884288,15515648,0.001123,888.056,47956,0.000000,0.001961
+micro,60,3,false,1,RC,1,crdv-async,64,1562,1000,1,1,all,async,15876096,15482880,0.001136,877.229,47371,0.000000,0.001968
+micro,60,3,false,1,RC,1,crdv-async,128,781,1000,1,1,all,async,15835136,15466496,0.001133,880.181,47531,0.000000,0.001965

@@ -1,0 +1,16 @@
+benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,operation,rt,tps,ct,ar,rtP95
+micro,60,3,true,128,n/a,3,riak,1,1000000,counterGet,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,mapGet,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,setContains,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,setGet,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,mapAdd,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,write,0.031063,4119.330,222499,0.000000,0.072902
+micro,60,3,true,128,n/a,3,riak,1,1000000,mapValue,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,mapRmv,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,setAdd,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,mapContains,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,total,0.031063,4119.330,222499,0.000000,0.072902
+micro,60,3,true,128,n/a,3,riak,1,1000000,counterInc,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,counterDec,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,setRmv,NaN,0.000,0,NaN,NaN
+micro,60,3,true,128,n/a,3,riak,1,1000000,read,NaN,0.000,0,NaN,NaN

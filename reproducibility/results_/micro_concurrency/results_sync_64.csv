@@ -1,0 +1,2 @@
+benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,mergeBatchSize,mergeDelta,mergeParallelism,readMode,writeMode,endSize,startSize,rt,tps,ct,ar,rtP95
+micro,60,3,true,64,RC,1,crdv-sync,64,1,1000,1,1,local,sync,30588928,122880,0.004562,14071.842,759906,0.000000,0.010112

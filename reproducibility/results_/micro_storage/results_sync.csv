@@ -1,0 +1,9 @@
+benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,mergeBatchSize,mergeDelta,mergeParallelism,readMode,writeMode,endSize,startSize,rt,tps,ct,ar,rtP95
+micro,60,3,false,1,RC,1,crdv-sync,1,100000,1000,1,1,local,sync,15605760,15605760,0.000802,1242.920,67118,0.000000,0.001714
+micro,60,3,false,1,RC,1,crdv-sync,2,50000,1000,1,1,local,sync,15613952,15597568,0.000818,1217.529,65747,0.000000,0.001726
+micro,60,3,false,1,RC,1,crdv-sync,4,25000,1000,1,1,local,sync,15581184,15581184,0.000811,1228.813,66357,0.000000,0.001726
+micro,60,3,false,1,RC,1,crdv-sync,8,12500,1000,1,1,local,sync,15589376,15548416,0.000817,1219.633,65861,0.000000,0.001731
+micro,60,3,false,1,RC,1,crdv-sync,16,6250,1000,1,1,local,sync,15548416,15532032,0.000828,1202.538,64937,0.000000,0.001738
+micro,60,3,false,1,RC,1,crdv-sync,32,3125,1000,1,1,local,sync,15556608,15515648,0.000829,1201.556,64885,0.000000,0.001749
+micro,60,3,false,1,RC,1,crdv-sync,64,1562,1000,1,1,local,sync,15507456,15482880,0.001053,946.759,51126,0.000000,0.002450
+micro,60,3,false,1,RC,1,crdv-sync,128,781,1000,1,1,local,sync,15491072,15466496,0.000994,1002.567,54140,0.000000,0.002250

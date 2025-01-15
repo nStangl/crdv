@@ -1,0 +1,85 @@
+version: '3'
+
+services:
+  # source database
+  riak0:
+    image: crdv
+    ports:
+      - 8000:8087
+      - 8081:8081
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak1:
+    image: crdv
+    ports:
+      - 8001:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak2:
+    image: crdv
+    ports:
+      - 8002:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak3:
+    image: crdv
+    ports:
+      - 8003:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak4:
+    image: crdv
+    ports:
+      - 8004:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak5:
+    image: crdv
+    ports:
+      - 8005:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak6:
+    image: crdv
+    ports:
+      - 8006:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak7:
+    image: crdv
+    ports:
+      - 8007:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak8:
+    image: crdv
+    ports:
+      - 8008:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"
+  riak9:
+    image: crdv
+    ports:
+      - 8009:8087
+    command: cron -f
+    cap_add:
+      - "NET_RAW"
+      - "NET_ADMIN"

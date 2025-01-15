@@ -1,0 +1,2 @@
+benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,endSize,startSize,rt,tps,ct,ar,rtP95
+micro,0,1,true,8,RC,3,native,1,100000,21438464,21438464,NaN,NaN,0,NaN,NaN

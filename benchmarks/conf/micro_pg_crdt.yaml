@@ -1,0 +1,70 @@
+# general
+connection:
+- host=localhost port=5433 dbname=testdb user=postgres password=postgres sslmode=disable
+time: 20
+transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
+warmup: 1
+cooldown: 1
+runs: 1
+noReload: true
+workers: [1]
+isolation: READ COMMITTED
+benchmark: micro
+engine: pg_crdt
+vacuumFull: false
+
+# remote - executes against the remote database only
+# local - relies on a local database + async replication to the remote db
+mode: remote
+# whether server -> client replication is 'state' based or 'operation' based 
+# valid when mode = local
+replication: operation
+
+# benchmark specific
+# number of items for each structure type
+itemsPerStructure: 100
+# number of elements in each structure (valid for set, map, and list)
+initialOpsPerStructure: 100
+# list of types to populate (types which are not evaluated can skip the population step to speed up the setup process)
+typesToPopulate: [register, set, map, list, counter]
+# number of bytes per value (for registers, map values, and list values)
+valueLength: 4
+operations:
+- name: counterGet
+  weight: 1
+- name: counterInc
+  weight: 1
+- name: counterDec
+  weight: 1
+- name: registerGet
+  weight: 1
+- name: registerSet
+  weight: 1
+- name: setGet
+  weight: 1
+- name: setContains
+  weight: 1
+- name: setAdd
+  weight: 1
+- name: setRmv
+  weight: 1
+- name: mapGet
+  weight: 1
+- name: mapValue
+  weight: 1
+- name: mapContains
+  weight: 1
+- name: mapAdd
+  weight: 1
+- name: mapRmv
+  weight: 1
+- name: listGet
+  weight: 1
+- name: listGetAt
+  weight: 1
+- name: listAdd
+  weight: 1
+- name: listAppend
+  weight: 1
+- name: listPrepend
+  weight: 1

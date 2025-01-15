@@ -1,0 +1,44 @@
+# general
+connection:
+- host=localhost port=5432 dbname=testdb1 user=postgres password=postgres sslmode=disable
+- host=localhost port=5432 dbname=testdb2 user=postgres password=postgres sslmode=disable
+- host=localhost port=5432 dbname=testdb3 user=postgres password=postgres sslmode=disable
+time: 15
+transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
+warmup: 3
+cooldown: 3
+runs: 1
+noReload: true
+workers: [8]
+isolation: READ COMMITTED
+benchmark: delay
+engine: crdv
+
+# read and write modes
+# read mode - local or all
+# write mode - sync or async
+modes: {readMode: local, writeMode: sync}
+# number of partitions considered while merging
+mergeParallelism: 1
+# time between merges (seconds)
+mergeDelta: 1
+# max batch size while merging a partition; each batch runs in a separate transaction
+mergeBatchSize: 100
+# discard unmerged rows when the benchmark finishes, so it can exit faster (note: when enabled,
+# different sites will end up with different data). if disabled, the benchmark will wait until all
+# data in all sites have been merged.
+discardUnmergedWhenFinished: false
+
+# benchmark specific
+# number of counters for each worker
+counters: 100
+# delay between counters' values measurements (milliseconds)
+logDelta: 100
+# number of counters to read in each measurement 
+measurementSample: 100
+# time to wait after the benchmark runtime to finish, in order to keep measuring the delay (seconds) 
+postEndWait: 15
+# operations
+operations:
+- name: write
+  weight: 1

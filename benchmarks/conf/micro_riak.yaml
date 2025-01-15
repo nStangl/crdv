@@ -1,0 +1,56 @@
+# general
+connection:
+- localhost:8087
+time: 60
+transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
+warmup: 3
+cooldown: 3
+runs: 1
+noReload: true
+workers: [9]
+benchmark: micro
+engine: riak
+# connection used to populate the benchmark
+populateClient: 0
+
+storageInfoPort: 8081 # (same host as the first connection)
+reset: false # reset the data after the benchmark ends (the storage.py server must be running, check deploy/install_riak.sh)
+
+# benchmark specific
+# number of items for each structure type
+itemsPerStructure: 100
+# number of elements in each structure (valid for set, map, and list)
+initialOpsPerStructure: 100
+# list of types to populate (types which are not evaluated can skip the population step to speed up the setup process)
+typesToPopulate: [register, set, map, counter]
+# number of bytes per value (for registers, map values, and list values)
+valueLength: 4
+operations:
+- name: counterGet
+  weight: 1
+- name: counterInc
+  weight: 1
+- name: counterDec
+  weight: 1
+- name: registerGet
+  weight: 1
+- name: registerSet
+  weight: 1
+- name: setGet
+  weight: 1
+- name: setContains
+  weight: 1
+- name: setAdd
+  weight: 1
+- name: setRmv
+  weight: 1
+- name: mapGet
+  weight: 1
+- name: mapValue
+  weight: 1
+- name: mapContains
+  weight: 1
+- name: mapAdd
+  weight: 1
+- name: mapRmv
+  weight: 1

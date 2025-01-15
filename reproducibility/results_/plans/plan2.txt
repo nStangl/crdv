@@ -1,0 +1,6 @@
+Unique (Time: 41.196 ms)
+ Subquery Scan 
+  WindowAgg
+   Gather Merge
+    Sort
+     Parallel Seq Scan on shoppingcartpresent

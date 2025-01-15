@@ -1,0 +1,18 @@
+FROM ubuntu:22.04
+WORKDIR /main
+COPY ./benchmarks benchmarks
+COPY ./deploy deploy
+COPY ./schema/nested_views.py schema/nested_views.py
+COPY ./reproducibility/containers/benchmarks_entrypoint.sh entrypoint.sh
+RUN chmod +x entrypoint.sh
+WORKDIR /main/deploy
+RUN chmod +x *.sh &&\
+    apt update; apt install -y sudo curl earlyoom &&\
+    ./install_python.sh &&\
+    ./install_go.sh
+WORKDIR /main/benchmarks
+RUN chmod +x *.sh
+RUN chmod +x *.py
+RUN . $HOME/.profile; go build
+ENV PATH="$PATH:/usr/local/go/bin"
+ENTRYPOINT [ "/main/entrypoint.sh" ]

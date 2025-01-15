@@ -1,0 +1,2 @@
+benchmark,time,runs,noReload,workers,isolation,sites,counters,engine,initialOpsPerStructure,itemsPerStructure,endSize,startSize,rt,tps,ct,ar,rtP95
+delay,60,1,true,32,RC,1,100,pg_crdt,0,0,3088384,0,0.005172,6184.226,334165,0.000000,0.008340

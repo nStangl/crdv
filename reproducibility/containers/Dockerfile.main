@@ -1,0 +1,10 @@
+FROM docker:27.3.1
+WORKDIR /main
+RUN apk add --no-cache bash grep
+COPY ./benchmarks benchmarks
+COPY ./schema schema
+COPY ./deploy deploy
+COPY ./reproducibility reproducibility
+RUN chmod +x reproducibility/*.sh
+WORKDIR /main/reproducibility/scripts
+HEALTHCHECK --interval=3s --timeout=1s --start-period=3s --retries=5 CMD [ "docker" ]

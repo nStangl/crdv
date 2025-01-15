@@ -1,0 +1,54 @@
+# general
+connection:
+- host=localhost port=5432 dbname=testdb_electric user=postgres password=postgres sslmode=disable
+time: 10
+transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
+warmup: 3
+cooldown: 3
+runs: 1
+noReload: true
+workers: [8]
+isolation: READ COMMITTED
+benchmark: micro
+engine: electric
+vacuumFull: false
+
+resetServerPort: 8082 # (same host as the connection)
+reset: false # reset the data (for the storage tests; the schema.py server must be running, check deploy/install_electric.sh)
+
+# benchmark specific
+# number of items for each structure type
+itemsPerStructure: 100
+# number of elements in each structure (valid for set, map, and list)
+initialOpsPerStructure: 100
+# list of types to populate (types which are not evaluated can skip the population step to speed up the setup process)
+typesToPopulate: [register, set, map]
+# number of bytes per value (for registers, map values, and list values)
+valueLength: 4
+operations:
+- name: registerGet
+  weight: 1
+- name: registerSet
+  weight: 1
+- name: setGet
+  weight: 1
+- name: setContains
+  weight: 1
+- name: setAdd
+  weight: 1
+- name: setRmv
+  weight: 1
+- name: setClear
+  weight: 0
+- name: mapGet
+  weight: 1
+- name: mapValue
+  weight: 1
+- name: mapContains
+  weight: 1
+- name: mapAdd
+  weight: 1
+- name: mapRmv
+  weight: 1
+- name: mapClear
+  weight: 0

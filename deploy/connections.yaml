@@ -1,0 +1,56 @@
+crdv:
+  clusterFile: ../schema/cluster.yaml
+  benchmarkConfigs:
+  - ../benchmarks/conf/timestampEncoding.yaml
+  - ../benchmarks/conf/micro_crdv.yaml
+  - ../benchmarks/conf/nested.yaml
+  - ../benchmarks/conf/delay_crdv.yaml
+  connections:
+  - host: localhost
+    port: 5432
+    user: postgres
+    password: postgres
+    dbname: testdb
+    targetDBs:
+    - testdb1
+    - testdb2
+    - testdb3
+native:
+  benchmarkConfigs:
+  - ../benchmarks/conf/micro_native.yaml
+  connections:
+  - host: localhost
+    port: 5432
+    user: postgres
+    password: postgres
+    dbname: testdb
+pg_crdt:
+  benchmarkConfigs:
+  - ../benchmarks/conf/micro_pg_crdt.yaml
+  - ../benchmarks/conf/delay_pg_crdt.yaml
+  connections:
+  - host: localhost
+    port: 5433
+    user: postgres
+    password: postgres
+    dbname: testdb
+electric:
+  benchmarkConfigs:
+  - ../benchmarks/conf/micro_electric.yaml
+  connections:
+  - host: localhost
+    port: 5432
+    user: postgres
+    password: postgres
+    dbname: testdb_electric
+riak:
+  benchmarkConfigs:
+  - ../benchmarks/conf/micro_riak.yaml
+  - ../benchmarks/conf/delay_riak.yaml
+  connections:
+  - host: localhost
+    port: 8087
+test_scripts:
+  files:
+    network: ../benchmarks/run_micro_network.sh
+    delay: ../benchmarks/run_delay.sh

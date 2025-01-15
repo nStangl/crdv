@@ -1,0 +1,30 @@
+# general
+connection:
+- localhost:8087
+time: 60
+transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
+warmup: 3
+cooldown: 3
+runs: 1
+noReload: true
+workers: [8]
+isolation: READ COMMITTED
+benchmark: delay
+engine: riak
+
+storageInfoPort: 8081 # (same host as the first connection)
+reset: true # reset the data after the benchmark ends (the storage.py server must be running, check deploy/install_riak.sh)
+
+# benchmark specific
+# number of counters for each worker
+counters: 100
+# delay between counters' values measurements (milliseconds)
+logDelta: 100
+# number of counters to read in each measurement 
+measurementSample: 100
+# time to wait after the benchmark runtime to finish, in order to keep measuring the delay (seconds) 
+postEndWait: 15
+# operations
+operations:
+- name: write
+  weight: 1

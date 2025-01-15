@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+WORKDIR /main
+COPY ./deploy deploy
+COPY ./reproducibility/containers/pg_entrypoint.sh entrypoint.sh
+RUN chmod +x entrypoint.sh
+WORKDIR /main/deploy
+RUN sed -i'' "s/sudo systemctl restart postgresql/service postgresql restart/g" install_postgres.sh &&\
+    sed -i'' "s/PG_VERSIONS=.*/PG_VERSIONS=(15)/g" install_postgres.sh &&\
+    sed -i'' "s/PORTS=.*/PORTS=(5433)/g" install_postgres.sh
+RUN chmod +x *.sh &&\
+    apt update; apt install -y sudo &&\
+    ./install_postgres.sh &&\
+    ./install_pg_crdt.sh &&\
+    ./install_metrics_server.sh &&\
+    ./install_network_partition_server.sh &&\
+    rm -r /root/.cargo/; rm -r /main/deploy/pg_crdt/target; apt purge libllvm14 -y
+WORKDIR /main
+HEALTHCHECK --interval=3s --timeout=1s --start-period=5s --retries=1 CMD [ "psql", "-U", "postgres" ]
+ENTRYPOINT [ "/main/entrypoint.sh" ]

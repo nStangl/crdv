@@ -1,0 +1,6 @@
+engine,type,name,ip,bytes_sent,bytes_recv,total
+riak,map,$\mathregular{Add_{100}}$,-,0,0,0
+riak,map,$\mathregular{Add_{100}}$,169.254.169.254,248,527,775
+riak,map,$\mathregular{Add_{100}}$,172.31.25.248,163253325,1306156,164559481
+riak,map,$\mathregular{Add_{100}}$,172.31.31.238,499176,4758950,5258126
+riak,map,$\mathregular{Add_{100}}$,99.78.176.216,3106,6213,9319

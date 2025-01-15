@@ -1,0 +1,15 @@
+benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,operation,rt,tps,ct,ar,rtP95
+micro,10,1,true,1,RC,1,electric,100,1000,registerGet,0.000180,132.246,1058,0.000000,0.000211
+micro,10,1,true,1,RC,1,electric,100,1000,registerSet,0.001078,137.495,1100,0.000000,0.001197
+micro,10,1,true,1,RC,1,electric,100,1000,setAdd,0.001373,134.371,1075,0.000000,0.001488
+micro,10,1,true,1,RC,1,electric,100,1000,setRmv,0.001017,136.120,1089,0.000000,0.001155
+micro,10,1,true,1,RC,1,electric,100,1000,mapAdd,0.001365,137.370,1099,0.000000,0.001489
+micro,10,1,true,1,RC,1,electric,100,1000,total,0.000646,1496.825,11975,0.000000,0.001360
+micro,10,1,true,1,RC,1,electric,100,1000,setContains,0.000186,133.496,1068,0.000000,0.000219
+micro,10,1,true,1,RC,1,electric,100,1000,mapValue,0.000184,138.370,1107,0.000000,0.000218
+micro,10,1,true,1,RC,1,electric,100,1000,setGet,0.000236,136.245,1090,0.000000,0.000275
+micro,10,1,true,1,RC,1,electric,100,1000,setClear,NaN,0.000,0,NaN,NaN
+micro,10,1,true,1,RC,1,electric,100,1000,mapRmv,0.001021,135.745,1086,0.000000,0.001145
+micro,10,1,true,1,RC,1,electric,100,1000,mapContains,0.000187,135.620,1085,0.000000,0.000220
+micro,10,1,true,1,RC,1,electric,100,1000,mapClear,NaN,0.000,0,NaN,NaN
+micro,10,1,true,1,RC,1,electric,100,1000,mapGet,0.000275,139.745,1118,0.000000,0.000320

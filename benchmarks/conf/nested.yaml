@@ -1,0 +1,40 @@
+# general
+connection:
+- host=localhost port=5432 dbname=testdb1 user=postgres password=postgres sslmode=disable
+- host=localhost port=5432 dbname=testdb2 user=postgres password=postgres sslmode=disable
+- host=localhost port=5432 dbname=testdb3 user=postgres password=postgres sslmode=disable
+time: 60
+transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
+warmup: 3
+cooldown: 3
+runs: 1
+noReload: true
+workers: [9]
+isolation: READ COMMITTED
+benchmark: nested
+
+# read and write modes
+# read mode - local or all
+# write mode - sync or async
+modes: {readMode: local, writeMode: sync}
+# number of partitions considered while merging
+mergeParallelism: 1
+# time between merges (seconds)
+mergeDelta: 1
+# max batch size while merging a partition; each batch runs in a separate transaction
+mergeBatchSize: 100
+
+# benchmark specific
+# number of nested structures
+items: 10000
+# number of nest levels (e.g., 3 = Map > Map > Map)
+nestingLevel: 2
+# query to read the JSON representation of the nested structure
+readQuery: SELECT id0 as id, data FROM ( SELECT id0, jsonb_object_agg(key0, data) AS data FROM ( SELECT id0, key0, id1, jsonb_object_agg(key1, value1) AS data FROM ( SELECT t0.id AS id0, (t0.data).key AS key0, t1.id AS id1, (t1.data).key AS key1, (t1.data).value AS value1 FROM MapAwLww AS t0, LATERAL (SELECT * FROM MapAwLww WHERE id = (t0.data).value OFFSET 0) AS t1 ) t GROUP BY 1, 2, 3 ) t GROUP BY 1 ) t
+# batch size when populating
+populateBatchSize: 1000
+operations:
+- name: read
+  weight: 1
+- name: explain
+  weight: 1

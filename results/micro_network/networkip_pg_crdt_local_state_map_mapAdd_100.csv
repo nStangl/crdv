@@ -1,0 +1,3 @@
+engine,type,name,ip,bytes_sent,bytes_recv,total
+pg_crdt_local_state,map,$\mathregular{Add_{100}}$,172.31.31.195,75040146,26021170,101061316
+pg_crdt_local_state,map,$\mathregular{Add_{100}}$,205.210.31.27,2193,2336,4529

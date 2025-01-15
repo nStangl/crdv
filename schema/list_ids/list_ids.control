@@ -1,0 +1,4 @@
+comment = 'Id generation functions for lists'
+default_version = '1.0'
+module_pathname = '$libdir/list_ids'
+relocatable = true

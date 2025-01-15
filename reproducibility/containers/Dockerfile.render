@@ -1,0 +1,17 @@
+FROM ubuntu:22.04
+WORKDIR /main
+RUN apt update &&\
+    apt install -y python3 python3-pip wget ghostscript &&\
+    wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh
+ENV PATH="$PATH:/root/.TinyTeX/bin/x86_64-linux"
+RUN tlmgr option repository https://mirror.math.princeton.edu/pub/CTAN/systems/texlive/tlnet
+RUN tlmgr install standalone caption libertine upquote pdfcrop listings
+COPY ./benchmarks/requirements.txt benchmarks/requirements.txt
+RUN pip3 install -r benchmarks/requirements.txt
+COPY ./benchmarks/plot_line.py benchmarks/plot_line.py
+COPY ./benchmarks/plot_bar.py benchmarks/plot_bar.py
+COPY ./reproducibility/scripts/plot.sh reproducibility/scripts/plot.sh
+COPY ./reproducibility/scripts/render.sh reproducibility/scripts/render.sh
+WORKDIR /main/reproducibility/scripts
+RUN chmod +x *.sh
+ENTRYPOINT [ "./render.sh" ]
