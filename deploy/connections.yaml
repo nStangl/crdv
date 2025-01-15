@@ -11,10 +11,6 @@ crdv:
     user: postgres
     password: postgres
     dbname: testdb
-    targetDBs:
-    - testdb1
-    - testdb2
-    - testdb3
 native:
   benchmarkConfigs:
   - ../benchmarks/conf/micro_native.yaml
@@ -50,6 +46,7 @@ riak:
   connections:
   - host: localhost
     port: 8087
+# scripts where we need to update the existing address(es)
 test_scripts:
   files:
     network: ../benchmarks/run_micro_network.sh

@@ -7,7 +7,7 @@ import json
 import time
 import asyncio
 
-REGION = "us-east-2"
+REGION = "us-east-1"
 
 
 def exec(command):
@@ -136,7 +136,7 @@ async def prepare(codePath, install, ring):
             print(f'Starting databases at {name}')
             command = f'''
                 cd sql-crdt/deploy;
-                #cd electric; ./run.sh; cd ..;
+                cd electric; ./run.sh; cd ..;
                 cd riak; ./run.sh 1; ./create-bucket-types.sh 1
             '''
             exec_watch(["ssh", "-o", "StrictHostKeyChecking=no", f"ubuntu@{site['PublicIpAddress']}", command])
@@ -146,7 +146,6 @@ async def prepare(codePath, install, ring):
     time.sleep(5)
 
     # prepare the riak cluster
-    """
     print('Preparing the riak cluster')
     riakClusterInfo = {}
     i = 1
@@ -178,7 +177,7 @@ async def prepare(codePath, install, ring):
                     '''
                     exec_watch(["ssh", "-o", "StrictHostKeyChecking=no", f"ubuntu@{site['PublicIpAddress']}", command])
             i += 1
-    """
+
     # prepare client connections; create crdv cluster
     print('Updating client config files and creating crdv cluster')
     client = [x for x in cluster.values() if x['Name'] == 'client'][0]
@@ -221,31 +220,6 @@ def terminate():
     print('Cluster terminated')
 
 
-def truncate():
-    cluster = clusterInfo()
-    
-    for name, site in sorted(cluster.items()):
-        if site["Name"] == 'server':
-            print(name)
-            command = f'''
-                psql -U postgres -d testdb -c "delete from shared"
-            '''
-            exec_watch(["ssh", "-o", "StrictHostKeyChecking=no", f"ubuntu@{site['PublicIpAddress']}", command])
-
-
-def runningQueries():
-    cluster = clusterInfo()
-    
-    for name, site in sorted(cluster.items()):
-        print(site["PublicIpAddress"])
-        if site["Name"] == 'server':
-            command = f'''
-                psql -U postgres -d testdb -c "SELECT datname, pid, state, left(query, 50) FROM pg_stat_activity WHERE state <> 'idle' AND query NOT LIKE '% FROM pg_stat_activity %';"
-            '''
-            exec_watch(["ssh", "-o", "StrictHostKeyChecking=no", f"ubuntu@{site['PublicIpAddress']}", command])
-
-
-
 def main():
     parser = argparse.ArgumentParser(description='Deploy a cluster')
     subparsers = parser.add_subparsers(dest='command', help='Command to execute', required=True)
@@ -259,8 +233,6 @@ def main():
     parserCli = subparsers.add_parser('cli', help='Prints a command to login to the client')
     parserResults = subparsers.add_parser('results', help='Copies the results to the host')
     parserTerminate = subparsers.add_parser('terminate', help='Terminate the instances')
-    parserTruncate = subparsers.add_parser('truncate', help='Truncate the shared tables')
-    parserRunningQueries = subparsers.add_parser('queries', help='Truncate the shared tables')
     args = parser.parse_args()
 
     if args.command == 'deploy':
@@ -275,10 +247,6 @@ def main():
         results()
     elif args.command == 'terminate':
         terminate()
-    elif args.command == 'truncate':
-        truncate()
-    elif args.command == 'queries':
-        runningQueries()
 
 
 if __name__ == '__main__':

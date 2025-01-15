@@ -1,2 +1,0 @@
-engine,type,name,bytes_sent,bytes_recv,total
-pg_crdt_local_op,map,$\mathregular{Add_1}$,26231840,31797731,58029571

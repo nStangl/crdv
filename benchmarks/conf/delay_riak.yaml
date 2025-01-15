@@ -1,6 +1,6 @@
 # general
 connection:
-- localhost:8087
+- localhost:8097
 time: 60
 transactions: 0 # if time <= 0, executes until 'transactions' have been completed (warmup/cooldown ignored)
 warmup: 3

@@ -1,4 +1,0 @@
-engine,type,name,ip,bytes_sent,bytes_recv,total
-riak,map,$\mathregular{Value_{100}}$,-,0,0,0
-riak,map,$\mathregular{Value_{100}}$,172.19.0.6,1371,1182,2553
-riak,map,$\mathregular{Value_{100}}$,172.19.0.7,161987770,2572662,164560432

@@ -1,2 +1,0 @@
-benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,endSize,startSize,rt,tps,ct,ar,rtP95
-micro,0,1,true,9,n/a,4,riak,1,100000,59213763,59213763,NaN,NaN,0,NaN,NaN

@@ -1,6 +1,0 @@
-Unique (Time: 2.190 ms)
- Subquery Scan 
-  WindowAgg
-   Sort
-    Bitmap Heap Scan on shoppingcartpresent
-     Bitmap Index Scan on shopping_p_id_idx

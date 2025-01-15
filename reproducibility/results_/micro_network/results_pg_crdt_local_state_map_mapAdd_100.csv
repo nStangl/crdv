@@ -1,2 +1,0 @@
-benchmark,time,runs,noReload,workers,isolation,sites,engine,initialOpsPerStructure,itemsPerStructure,endSize,startSize,rt,tps,ct,ar,rtP95
-micro,0,1,true,1,RC,1,pg_crdt,100,100000,88580096,76742656,0.003845,259.743,100000,0.000000,0.005110

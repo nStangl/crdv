@@ -1,5 +1,0 @@
-Subquery Scan  (Time: 0.078 ms)
- WindowAgg
-  Sort
-   Bitmap Heap Scan on shoppingcartpresent
-    Bitmap Index Scan on shoppingcartpresent_pkey

@@ -1,2 +1,0 @@
-engine,type,name,ip,bytes_sent,bytes_recv,total
-pg_crdt_remote,map,$\mathregular{Value_{100}}$,172.19.0.7,66549605,4142205,70691810
