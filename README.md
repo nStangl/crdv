@@ -1,6 +1,6 @@
 # CRDV
 
-Proof-of-concept implementation of Conflict-free Replicated Data Views. The complete design can be found in the paper *CRDV: Conflict-free Replicated Data Views*, **SIGMOD 2025**.
+Proof-of-concept implementation of Conflict-free Replicated Data Views. The complete design can be found in the paper *CRDV: Conflict-free Replicated Data Views*, **SIGMOD 2025**. You can read it [here](https://nuno-faria.github.io/papers/crdv.pdf).
 
 - [CRDV](#crdv)
   - [Getting started](#getting-started)
