@@ -1,30 +1,44 @@
-# CRDV
 
-Proof-of-concept implementation of Conflict-free Replicated Data Views. The complete design can be found in the paper *CRDV: Conflict-free Replicated Data Views*, **SIGMOD 2025**. You can read it [here](https://nuno-faria.github.io/papers/crdv.pdf).
+<p align="center">
+  <img alt="CRDV" src="./title.svg" width="300">
+</p>
 
-- [CRDV](#crdv)
-  - [Getting started](#getting-started)
-    - [Setup](#setup)
-    - [Example usage](#example-usage)
-  - [Architecture](#architecture)
-    - [Default structures](#default-structures)
-    - [Reading](#reading)
-    - [Writing](#writing)
-    - [Utility functions](#utility-functions)
-    - [Nested structures](#nested-structures)
-      - [Referential integrity](#referential-integrity)
-    - [Sync and async mode](#sync-and-async-mode)
-    - [Merge daemon](#merge-daemon)
-  - [Testing](#testing)
-  - [Benchmarks](#benchmarks)
-    - [Setup](#setup-1)
-    - [Run](#run)
-    - [Results](#results)
-  - [Reproducibility](#reproducibility)
 
-## Getting started
+<h4 align="center">
+  Conflict-free Replicated Data Views
+</h4>
 
-### Setup
+<p align="center">
+  | <a href="https://dl.acm.org/doi/pdf/10.1145/3709675"><b>Paper</b></a> |
+</p>
+
+---
+
+
+Proof-of-concept implementation of Conflict-free Replicated Data Views. The complete design can be found in the paper [*CRDV: Conflict-free Replicated Data Views*](https://dl.acm.org/doi/pdf/10.1145/3709675), **SIGMOD 2025**.
+
+- [Getting started](#getting-started)
+  - [Setup](#setup)
+  - [Example usage](#example-usage)
+- [Architecture](#architecture)
+  - [Default structures](#default-structures)
+  - [Reading](#reading)
+  - [Writing](#writing)
+  - [Utility functions](#utility-functions)
+  - [Nested structures](#nested-structures)
+    - [Referential integrity](#referential-integrity)
+  - [Sync and async mode](#sync-and-async-mode)
+  - [Merge daemon](#merge-daemon)
+- [Testing](#testing)
+- [Benchmarks](#benchmarks)
+  - [Setup](#setup-1)
+  - [Run](#run)
+  - [Results](#results)
+- [Reproducibility](#reproducibility)
+
+# Getting started
+
+## Setup
 
 (Tested with PostgresSQL 16, Ubuntu 22.04.)
 
@@ -108,7 +122,7 @@ Proof-of-concept implementation of Conflict-free Replicated Data Views. The comp
     python3 dropCluster.py cluster.yaml
     ```
 
-### Example usage
+## Example usage
 
 - Writes to the same map, on different keys:
 ```sql
@@ -160,7 +174,7 @@ SELECT * FROM mapAwLww;
  m  | (k3,v30)
 ```
 
-## Architecture
+# Architecture
 
 <img src="architecture.svg" width="400">
 
@@ -170,7 +184,7 @@ SELECT * FROM mapAwLww;
 - **Aw**, **Rw**, **Mvr**, ... - views that apply conflict resolution rules to the data in the causal present.
 
 
-### Default structures
+## Default structures
 
 We implement the following types, although more can be created:
 
@@ -181,7 +195,7 @@ We implement the following types, although more can be created:
 - **List** - an ordered collection of values (duplicates allowed).
 
 
-### Reading
+## Reading
 
 When reading, we consider the following rules to handle conflicting writes, although more can be created:
 
@@ -244,7 +258,7 @@ Below are the implemented read views for each type:
 Instead of directly querying the views, we can also use [utility functions](#utility-functions) instead.
 
 
-### Writing
+## Writing
 
 To write data, we simply perform an insert to the view *Data* with the respective information:
   - `id` - the structure's identifier;
@@ -263,7 +277,7 @@ To write data, we simply perform an insert to the view *Data* with the respectiv
 
 Just like for reading, we can use [utility functions](#utility-functions) instead of directly writing to the Data view.
 
-### Utility functions
+## Utility functions
 
 These functions can be used to read and write data to the various structures. In each function, the `id` parameter represents the structure's identifier. The structure is automatically created if it does not exist.
 
@@ -301,7 +315,7 @@ These functions can be used to read and write data to the various structures. In
   -  `listClear(id)` -- removes all elements from a list.
 
 
-### Nested structures
+## Nested structures
 
 We can model structures inside structures by storing in the *data* column the *id* of the inner structure. For example, to represent a map of sets, we can do the following:
 
@@ -359,7 +373,7 @@ WHERE id0 = 'm1'; -- selection manually added
  m1 | {"k1": ["a", "b"], "k2": ["c", "d"]}
 ```
 
-#### Referential integrity
+### Referential integrity
 
 To ensure referential integrity in nested structures -- e.g., `a` is a map of courses that references a list of students `b` by key `k`; adding a new student to `b` and concurrently removing `b` from `a` results in a conflict, since now `b` does not exist in `a` -- we can force an update on the linked structure in the same transaction that performs the modification. For instance, when updating `b`, we would also mark `b` as added in `a`. Then, the Aw or Rw views would consistently dictate if `b` exists or not. While this can done manually, we can also use the following utility function:
 
@@ -385,7 +399,7 @@ SELECT rmv_referential_integrity('{m1, k1}', 's1');
 (Note: since we implement every structure in the same table, theses constraints are applied to specific rows. However, this could also be designed to add a constraint based on the column, much like regular SQL constraints.)
 
 
-### Sync and async mode
+## Sync and async mode
 
 We consider two different write modes: *sync* and *async*. With *sync*, local versions are written to the Local table, forcing the merge before returning to the client. *Async* writes to Shared and returns immediately, while the merge is done asynchronously with a background process.
 
@@ -410,7 +424,7 @@ SELECT switch_read_mode('all');
 ```
 
 
-### Merge daemon
+## Merge daemon
 
 Remote operations (and local *async* ones) are moved from Shared to Local with a periodic merge daemon. This daemon is already running by default when the cluster is initialized, but needs to started when the system restarts.
 
@@ -451,7 +465,7 @@ To stop the merge daemon, usually for debug purposes, we use the following proce
 SELECT unschedule_merge_daemon();
 ```
 
-## Testing
+# Testing
 
 We provide several types of tests:
 
@@ -523,7 +537,7 @@ We provide several types of tests:
 To execute them, the cluster must already exist.
 
 
-## Benchmarks
+# Benchmarks
 
 **Note**: To reproduce the original paper's results, please check the [Reproducibility](#reproducibility) section.
 
@@ -531,7 +545,7 @@ We implement several benchmarks to both test our solution and compare against al
 
 (Tested on Ubuntu 22.04.)
 
-### Setup
+## Setup
 
 - If a CRDV cluster already exists, drop it first:
   ```shell
@@ -631,7 +645,7 @@ We implement several benchmarks to both test our solution and compare against al
   sudo chmod +x *.sh
   ```
 
-### Run
+## Run
 
 Inside the `benchmarks` folder, there are several scripts to run various tests:
 - `./run_timestamp_encoding.sh` (-) - tests various timestamp encoding strategies;
@@ -650,11 +664,11 @@ Each script stores the raw files and plots in the `benchmarks/results` folder. E
 (Note: At least for the `run_micro_network.sh` and `run_delay.sh` tests the client should be deployed on a separate instance.)
 
 
-### Results
+## Results
 
 Results can be found in the [results](/results) folder.
 
 
-## Reproducibility
+# Reproducibility
 
 Reproducibility instructions can be found in the [reproducibility](/reproducibility) folder.
