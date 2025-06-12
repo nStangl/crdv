@@ -168,11 +168,11 @@
           Here is an example of a rule that translates Updates (PostgreSQL syntax):
         </p>
         <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">CREATE</span><span style="color:#54B9FF"> RULE</span><span style="color:#00DAEF"> update_rule</span><span style="color:#54B9FF"> AS</span></span>
-  <span class="line"><span style="color:#54B9FF">  ON</span><span style="color:#54B9FF"> UPDATE</span><span style="color:#54B9FF"> TO</span><span style="color:#54B9FF"> Value</span><span style="color:#EEF0F9"> DO </span><span style="color:#54B9FF">INSTEAD</span></span>
-  <span class="line"><span style="color:#54B9FF">  INSERT INTO</span><span style="color:#EEF0F9"> History</span></span>
-  <span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, v, </span><span style="color:#FFD493">'add'</span><span style="color:#EEF0F9">, siteId(), </span><span style="color:#FFD493">t</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">lts</span><span style="color:#EEF0F9">, </span><span style="color:#FFD493">t</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">pts</span></span>
-  <span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> nextTimestamp() </span><span style="color:#54B9FF">AS</span><span style="color:#EEF0F9"> t;</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#54B9FF">  ON</span><span style="color:#54B9FF"> UPDATE</span><span style="color:#54B9FF"> TO</span><span style="color:#54B9FF"> Value</span><span style="color:#EEF0F9"> DO </span><span style="color:#54B9FF">INSTEAD</span></span>
+<span class="line"><span style="color:#54B9FF">  INSERT INTO</span><span style="color:#EEF0F9"> History</span></span>
+<span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, v, </span><span style="color:#FFD493">'add'</span><span style="color:#EEF0F9">, siteId(), </span><span style="color:#FFD493">t</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">lts</span><span style="color:#EEF0F9">, </span><span style="color:#FFD493">t</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">pts</span></span>
+<span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> nextTimestamp() </span><span style="color:#54B9FF">AS</span><span style="color:#EEF0F9"> t;</span></span>
+<span class="line"></span></code></pre>
       </section>
 
       <section>
@@ -260,10 +260,10 @@
         <div class="grid sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-2">
           <div class="sm:col-span-2">
             <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">CREATE</span><span style="color:#54B9FF"> VIEW</span><span style="color:#00DAEF"> ValueAw</span><span style="color:#54B9FF"> AS</span></span>
-  <span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, v</span></span>
-  <span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> Present</span></span>
-  <span class="line"><span style="color:#54B9FF">  WHERE</span><span style="color:#EEF0F9"> op = </span><span style="color:#FFD493">'add'</span><span style="color:#EEF0F9">;</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, v</span></span>
+<span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> Present</span></span>
+<span class="line"><span style="color:#54B9FF">  WHERE</span><span style="color:#EEF0F9"> op = </span><span style="color:#FFD493">'add'</span><span style="color:#EEF0F9">;</span></span>
+<span class="line"></span></code></pre>
           </div>
           <figure class="my-4">
             <img class="mx-auto xs:w-3/6 w-2/6" src="images/read_aw.png" title="Add-wins view" alt="Add-wins result set" />
@@ -281,10 +281,10 @@
         <div class="grid sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-2">
           <div class="sm:col-span-2">
             <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">CREATE</span><span style="color:#54B9FF"> VIEW</span><span style="color:#00DAEF"> ValueAwMvr</span><span style="color:#54B9FF"> AS</span></span>
-  <span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, array_agg(v </span><span style="color:#54B9FF">ORDER BY</span><span style="color:#EEF0F9"> v) v</span></span>
-  <span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> ValueAw</span></span>
-  <span class="line"><span style="color:#54B9FF">  GROUP BY</span><span style="color:#EEF0F9"> k;</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, array_agg(v </span><span style="color:#54B9FF">ORDER BY</span><span style="color:#EEF0F9"> v) v</span></span>
+<span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> ValueAw</span></span>
+<span class="line"><span style="color:#54B9FF">  GROUP BY</span><span style="color:#EEF0F9"> k;</span></span>
+<span class="line"></span></code></pre>
           </div>
           <figure class="my-4">
             <img class="mx-auto xs:w-3/6 w-2/6" src="images/read_awmvr.png" title="Add-wins + multi-value register view." alt="Add-wins + multi-value register result set" />
@@ -301,10 +301,10 @@
         <div class="grid sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-2">
           <div class="sm:col-span-2">
             <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">CREATE</span><span style="color:#54B9FF"> VIEW</span><span style="color:#00DAEF"> ValueAwAvg</span><span style="color:#54B9FF"> AS</span></span>
-  <span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, avg(v)</span></span>
-  <span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> ValueAw</span></span>
-  <span class="line"><span style="color:#54B9FF">  GROUP BY</span><span style="color:#EEF0F9"> k;</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, avg(v)</span></span>
+<span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> ValueAw</span></span>
+<span class="line"><span style="color:#54B9FF">  GROUP BY</span><span style="color:#EEF0F9"> k;</span></span>
+<span class="line"></span></code></pre>
           </div>
           <figure class="my-4">
             <img class="mx-auto xs:w-3/6 w-2/6" src="images/read_awavg.png" title="Add-wins + average view" alt="Add-wins + average result set" />
@@ -320,16 +320,16 @@
         <div class="grid sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-2">
           <div class="sm:col-span-2">
             <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">CREATE</span><span style="color:#54B9FF"> VIEW</span><span style="color:#00DAEF"> ValueLww</span><span style="color:#54B9FF"> AS</span></span>
-  <span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, v</span></span>
-  <span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> (</span></span>
-  <span class="line"><span style="color:#54B9FF">    SELECT</span><span style="color:#EEF0F9"> k, v, op, rank() </span><span style="color:#54B9FF">OVER</span><span style="color:#EEF0F9"> (</span></span>
-  <span class="line"><span style="color:#54B9FF">        PARTITION</span><span style="color:#54B9FF"> BY</span><span style="color:#EEF0F9"> k</span></span>
-  <span class="line"><span style="color:#54B9FF">        ORDER BY</span><span style="color:#EEF0F9"> pts </span><span style="color:#54B9FF">DESC</span><span style="color:#EEF0F9">, </span><span style="color:#54B9FF">site</span></span>
-  <span class="line"><span style="color:#EEF0F9">      ) </span><span style="color:#54B9FF">AS</span><span style="color:#EEF0F9"> rank</span></span>
-  <span class="line"><span style="color:#54B9FF">    FROM</span><span style="color:#EEF0F9"> Present</span></span>
-  <span class="line"><span style="color:#EEF0F9">  )</span></span>
-  <span class="line"><span style="color:#54B9FF">  WHERE</span><span style="color:#EEF0F9"> rank = </span><span style="color:#FFD493">1</span><span style="color:#54B9FF"> AND</span><span style="color:#EEF0F9"> op = </span><span style="color:#FFD493">'add'</span><span style="color:#EEF0F9">;</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#54B9FF">  SELECT</span><span style="color:#EEF0F9"> k, v</span></span>
+<span class="line"><span style="color:#54B9FF">  FROM</span><span style="color:#EEF0F9"> (</span></span>
+<span class="line"><span style="color:#54B9FF">    SELECT</span><span style="color:#EEF0F9"> k, v, op, rank() </span><span style="color:#54B9FF">OVER</span><span style="color:#EEF0F9"> (</span></span>
+<span class="line"><span style="color:#54B9FF">        PARTITION</span><span style="color:#54B9FF"> BY</span><span style="color:#EEF0F9"> k</span></span>
+<span class="line"><span style="color:#54B9FF">        ORDER BY</span><span style="color:#EEF0F9"> pts </span><span style="color:#54B9FF">DESC</span><span style="color:#EEF0F9">, </span><span style="color:#54B9FF">site</span></span>
+<span class="line"><span style="color:#EEF0F9">      ) </span><span style="color:#54B9FF">AS</span><span style="color:#EEF0F9"> rank</span></span>
+<span class="line"><span style="color:#54B9FF">    FROM</span><span style="color:#EEF0F9"> Present</span></span>
+<span class="line"><span style="color:#EEF0F9">  )</span></span>
+<span class="line"><span style="color:#54B9FF">  WHERE</span><span style="color:#EEF0F9"> rank = </span><span style="color:#FFD493">1</span><span style="color:#54B9FF"> AND</span><span style="color:#EEF0F9"> op = </span><span style="color:#FFD493">'add'</span><span style="color:#EEF0F9">;</span></span>
+<span class="line"></span></code></pre>
           </div>
           <figure class="my-4">
             <img class="mx-auto xs:w-3/6 w-2/6" src="images/read_lww.png" title="Last-writer-wins view" alt="Last-writer-wins result set" />
@@ -382,17 +382,17 @@
           be queried as such:
         </p>
         <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">SELECT</span><span style="color:#FFD493"> c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9">, </span><span style="color:#FFD493">c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">product_id</span><span style="color:#EEF0F9">, </span><span style="color:#FFD493">q</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">amount</span></span>
-  <span class="line"><span style="color:#54B9FF">FROM</span><span style="color:#EEF0F9"> CartAw c</span></span>
-  <span class="line"><span style="color:#54B9FF">JOIN</span><span style="color:#EEF0F9"> Quantity q </span><span style="color:#54B9FF">ON</span><span style="color:#FFD493"> q</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9"> = </span><span style="color:#FFD493">c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">quantity_id</span><span style="color:#EEF0F9">;</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#54B9FF">FROM</span><span style="color:#EEF0F9"> CartAw c</span></span>
+<span class="line"><span style="color:#54B9FF">JOIN</span><span style="color:#EEF0F9"> Quantity q </span><span style="color:#54B9FF">ON</span><span style="color:#FFD493"> q</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9"> = </span><span style="color:#FFD493">c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">quantity_id</span><span style="color:#EEF0F9">;</span></span>
+<span class="line"></span></code></pre>
         <p>
           Alternatively, we can return the result set as JSON:
         </p>
         <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">SELECT</span><span style="color:#FFD493"> c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9">, jsonb_object_agg(</span><span style="color:#FFD493">c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">product_id</span><span style="color:#EEF0F9">, </span><span style="color:#FFD493">q</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">amount</span><span style="color:#EEF0F9">)</span></span>
-  <span class="line"><span style="color:#54B9FF">FROM</span><span style="color:#EEF0F9"> CartAw c</span></span>
-  <span class="line"><span style="color:#54B9FF">JOIN</span><span style="color:#EEF0F9"> Quantity q </span><span style="color:#54B9FF">ON</span><span style="color:#FFD493"> q</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9"> = </span><span style="color:#FFD493">c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">quantity_id</span></span>
-  <span class="line"><span style="color:#54B9FF">GROUP BY</span><span style="color:#FFD493"> c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9">;</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#54B9FF">FROM</span><span style="color:#EEF0F9"> CartAw c</span></span>
+<span class="line"><span style="color:#54B9FF">JOIN</span><span style="color:#EEF0F9"> Quantity q </span><span style="color:#54B9FF">ON</span><span style="color:#FFD493"> q</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9"> = </span><span style="color:#FFD493">c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">quantity_id</span></span>
+<span class="line"><span style="color:#54B9FF">GROUP BY</span><span style="color:#FFD493"> c</span><span style="color:#EEF0F9">.</span><span style="color:#FFD493">id</span><span style="color:#EEF0F9">;</span></span>
+<span class="line"></span></code></pre>
         <p>
           One problem with this approach is that if we remove a product <code>p</code> from a cart while
           concurrently incrementing its quantity, the add-wins view will not select <code>p</code>,
@@ -429,24 +429,24 @@
       <section>
         <h3>BibTeX</h3>
         <pre class="code" style="color:#eef0f9" tabindex="0"><code><span class="line"><span style="color:#54B9FF">@article</span><span style="color:#EEF0F9">{</span><span style="color:#ACAFFF">crdv</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  author     = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">Faria, Nuno and Pereira, José</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  title      = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">CRDV: Conflict-free Replicated Data Views</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  year       = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">2025</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  issue_date = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">February 2025</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  publisher  = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">Association for Computing Machinery</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  address    = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">New York, NY, USA</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  volume     = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">3</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  number     = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">1</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  url        = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">https://doi.org/10.1145/3709675</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  doi        = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">10.1145/3709675</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  abstract   = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">There are now multiple proposals for Conflict-free Replicated Data Types (CRDTs) in SQL databases aimed at distributed systems. Some, such as ElectricSQL, provide only relational tables as convergent replicated maps, but this omits semantics that would be useful for merging updates. Others, such as Pg_crdt, provide access to a rich library of encapsulated column types. However, this puts merge and query processing outside the scope of the query optimizer and restricts the ability of an administrator to influence access paths with materialization and indexes.Our proposal, CRDV, overcomes this challenge by using two layers implemented as SQL views: The first provides a replicated relational table from an update history, while the second implements varied and rich types on top of the replicated table. This allows the definition of merge semantics, or even entire new data types, in SQL itself, and enables global optimization of user queries together with merge operations. Therefore, it naturally extends the scope of query optimization and local transactions to operations on replicated data, can be used to reproduce the functionality of common CRDTs with simple SQL idioms, and results in better performance than alternatives.</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  journal    = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">Proc. ACM Manag. Data</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  month      = feb,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  articleno  = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">25</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  numpages   = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">27</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
-  <span class="line"><span style="color:#EEF0F9">  keywords   = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">crdts, distributed databases, geo-replication, local-first software</span><span style="color:#FFD493">}</span></span>
-  <span class="line"><span style="color:#EEF0F9">}</span></span>
-  <span class="line"></span></code></pre>
+<span class="line"><span style="color:#EEF0F9">  author     = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">Faria, Nuno and Pereira, José</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  title      = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">CRDV: Conflict-free Replicated Data Views</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  year       = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">2025</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  issue_date = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">February 2025</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  publisher  = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">Association for Computing Machinery</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  address    = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">New York, NY, USA</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  volume     = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">3</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  number     = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">1</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  url        = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">https://doi.org/10.1145/3709675</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  doi        = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">10.1145/3709675</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  abstract   = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">There are now multiple proposals for Conflict-free Replicated Data Types (CRDTs) in SQL databases aimed at distributed systems. Some, such as ElectricSQL, provide only relational tables as convergent replicated maps, but this omits semantics that would be useful for merging updates. Others, such as Pg_crdt, provide access to a rich library of encapsulated column types. However, this puts merge and query processing outside the scope of the query optimizer and restricts the ability of an administrator to influence access paths with materialization and indexes.Our proposal, CRDV, overcomes this challenge by using two layers implemented as SQL views: The first provides a replicated relational table from an update history, while the second implements varied and rich types on top of the replicated table. This allows the definition of merge semantics, or even entire new data types, in SQL itself, and enables global optimization of user queries together with merge operations. Therefore, it naturally extends the scope of query optimization and local transactions to operations on replicated data, can be used to reproduce the functionality of common CRDTs with simple SQL idioms, and results in better performance than alternatives.</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  journal    = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">Proc. ACM Manag. Data</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  month      = feb,</span></span>
+<span class="line"><span style="color:#EEF0F9">  articleno  = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">25</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  numpages   = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">27</span><span style="color:#FFD493">}</span><span style="color:#EEF0F9">,</span></span>
+<span class="line"><span style="color:#EEF0F9">  keywords   = </span><span style="color:#FFD493">{</span><span style="color:#EEF0F9">crdts, distributed databases, geo-replication, local-first software</span><span style="color:#FFD493">}</span></span>
+<span class="line"><span style="color:#EEF0F9">}</span></span>
+<span class="line"></span></code></pre>
       </section>
     </section>
   </main>
