@@ -1,6 +1,6 @@
 # Number of transactions to complete per test
 TRANSACTIONS=100000
-# Number of runs per test (each runs for $TIME seconds)
+# Number of runs per test
 RUNS=1
 # Number of clients
 WORKERS=1

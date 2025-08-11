@@ -1,4 +1,5 @@
 import argparse
+import sys
 import matplotlib as mpl
 from matplotlib import ticker
 from matplotlib.legend_handler import HandlerPatch
@@ -55,12 +56,12 @@ args = parser.parse_args()
 validFiles = []
 for file in args.files:
     if not os.path.isfile(file):
-        print(f'Warning: File {file} does not exist, ignoring it.')
+        print(f'Warning: File {file} does not exist, ignoring it.', file=sys.stderr)
     else:
         validFiles.append(file)
 
 if len(validFiles) == 0:
-    exit(f'Error: No valid file to read.')
+    exit(f'Warning: No files to read.')
 
 # read csv
 df = pd.concat((pd.read_csv(file) for file in validFiles), ignore_index=True)
@@ -78,7 +79,7 @@ if args.p:
 if args.group and args.gorder:
     notFound = [g for g in args.gorder if g not in df['_G'].values]
     if notFound:
-        exit(f'Error: Missing groups from the source data ({notFound}).') 
+        print(f'Warning: Missing groups from the source data ({notFound}).', file=sys.stderr) 
 
 pivot = df.pivot_table(index='_X', columns='_G', values='_Y', fill_value=0)
 pivot = pivot.stack().reset_index(name='_Y')
@@ -110,11 +111,17 @@ if args.hatches:
     hatches = [e for l in [[args.hatches[i].replace('_', '-')] * len(args.xorder) for i in range(len(args.hatches))] for e in l]
 
     for i, (hue, x) in enumerate(product(args.gorder, args.xorder)):
-        ax.patches[i].set_hatch(hatches[i])
+        try:
+            ax.patches[i].set_hatch(hatches[i])
+        except:
+            pass
 
     # legend
     for i, hatch in enumerate(reversed([h.replace('_', '-') for h in args.hatches])):
-        ax.patches[-i - 1].set_hatch(hatch)
+        try:
+            ax.patches[-i - 1].set_hatch(hatch)
+        except:
+            pass
 
 # legend
 if ax.legend_ is not None:
@@ -139,19 +146,22 @@ if args.p:
     ax.add_artist(legend)
 
     for i, (hue, x) in enumerate(product(args.gorder, args.xorder)):
-        center = ax.patches[i].properties()['center']
-        entry = df[(df['_X'] == x) & (df['_G'] == hue)]
-        if len(entry) == 1:
-            y = entry['_Y'].item()
-            p = entry['_P'].item()
-        else:
-            y = np.mean(entry['_Y'])
-            p = np.mean(entry['_P'])
+        try:
+            center = ax.patches[i].properties()['center']
+            entry = df[(df['_X'] == x) & (df['_G'] == hue)]
+            if len(entry) == 1:
+                y = entry['_Y'].item()
+                p = entry['_P'].item()
+            else:
+                y = np.mean(entry['_Y'])
+                p = np.mean(entry['_P'])
 
-        _, caplines, barlines = plt.errorbar(x=center[0], y=y, yerr=[[0], [p - y if p > y else 0]], fmt='none', label=args.plabel,
-                                          ecolor='#000', capsize=0, lolims=True, elinewidth=0.4)
-        caplines[0].set_marker('_')
-        caplines[0].set_markeredgewidth(0.4)
+            _, caplines, barlines = plt.errorbar(x=center[0], y=y, yerr=[[0], [p - y if p > y else 0]], fmt='none', label=args.plabel,
+                                            ecolor='#000', capsize=0, lolims=True, elinewidth=0.4)
+            caplines[0].set_marker('_')
+            caplines[0].set_markeredgewidth(0.4)
+        except:
+            pass
 
 # labels
 if args.rx:

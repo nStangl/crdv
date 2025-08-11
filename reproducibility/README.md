@@ -3,24 +3,23 @@
 ## Requirements
 
 - Linux[^1] (Recommended) / MacOS / Windows **instance** with internet connection
-  - Minimum recommended specs: 8 vCPUs, 16 GB RAM, 100 GB NVMe SSD
+  - Minimum recommended specs: 8 vCPUs (x64 recommended), 16 GB RAM, 100 GB NVMe SSD
 - **Docker**
   - To install in Windows: https://docs.docker.com/desktop/install/windows-install/
   - To install in MacOS: https://docs.docker.com/desktop/install/mac-install/
   - To install in Linux: https://docs.docker.com/engine/install/
     - The following command can also be used in some Linux distributions (Ubuntu/Debian/RHEL/Fedora, with RHEL/Fedora requiring an additional `sudo service docker start`):
-    ```shell
-    curl -fsSL https://get.docker.com | sh
-    ```
+      ```shell
+      curl -fsSL https://get.docker.com | sh
+      ```
+- This repository:
+  ```shell
+  git clone https://github.com/nuno-faria/crdv
+  cd crdv/reproducibility
+  ```
 
 [^1]: Successfully tested with the following Linux distributions:
-  Ubuntu (24.04)
-  Debian (12.6)
-  RHEL (9.4)
-  Fedora (40)
-  SUSE (15.6)
-  Amazon Linux (2023)
-  Arch
+  Ubuntu (24.04) | Debian (12.6) | RHEL (9.4) | Fedora (40) | SUSE (15.6) | Amazon Linux (2023) | Arch
 
 ## Run
 
@@ -30,7 +29,7 @@ To run smaller/faster tests, see the [Configuration](#configuration) section.
 
 ### Run everything
 
-*Estimated runtime: **25 hours** with the default configuration or **8 hours** with the lite configuration.*
+*Estimated runtime: **25 hours** with the default configuration or **8 hours** with the [lite configuration](#lite-tests).*
 
 - Linux/MacOS/Windows WSL
 ```shell
@@ -69,19 +68,19 @@ The `cleanup` flag deletes the main container and image, so it should be used wh
 
 List of available tests:
 
-| Test name | Label |
-|---|---|
-| `timestamp_encoding` | Figure 6 |
-| `materialization_strategy` | Figure 7 |
-| `plan_optimization` | Listing 3 |
-| `nested_structures` | Figure 8 |
-| `operations` | Figure 9 |
-| `concurrency` | Figure 10 |
-| `storage_structures` | Figure 11 |
-| `storage_sites` | Figure 12 |
-| `network` | Figure 13 |
-| `freshness` | Figure 14 |
-| `multiple_sites` | Figure 15 |
+| Test name | Label | Caption |
+|---|---|---|
+| `timestamp_encoding` | Figure&nbsp;6 | *Comparison of different timestamp encodings.* |
+| `materialization_strategy` | Figure&nbsp;7 | *Comparison of different materialization strategies in CRDV, based on the workload.* |
+| `plan_optimization` | Listing 3 | *Physical plans for different CRDV queries.* |
+| `nested_structures` | Figure&nbsp;8 | *CRDV’s read performance with different levels of nesting.* |
+| `operations` | Figure&nbsp;9 | *Performance comparison between different operations in different structures, using different solutions.* |
+| `concurrency` | Figure&nbsp;10 | *Write performance of different solutions in a variable contention workload.* |
+| `storage_structures` | Figure&nbsp;11 | *Storage usage and latency of different solutions, based on the total number of maps.* |
+| `storage_sites` | Figure&nbsp;12 | *Storage usage based on the number of sites.* |
+| `network` | Figure&nbsp;13 | *Network overhead of different distributed solutions.* |
+| `freshness` | Figure&nbsp;14 | *Delay and throughput over time of different distributed solutions.* |
+| `multiple_sites` | Figure&nbsp;15 | *Performance comparison based on the cluster size.* |
 
 
 ## Configuration
@@ -99,6 +98,26 @@ To use the smaller configurations:
 cp -r conf conf_default
 # set the new configuration
 cp conf_lite/* conf
+```
+
+To restore the default configuration:
+```shell
+cp conf_default/* conf
+```
+
+### Nano tests
+
+Nano tests can be used to confirm that the setup, all tests, and document generation run correctly. Estimated runtime: 30 minutes.
+
+> [!IMPORTANT] 
+> The nano tests should only be used to confirm that everything is working correctly and not to retrieve meaningful results. The execution times are too short and some tests/figures are missing. Some warnings will appear in the output, but the final PDF should be generated.
+
+
+```shell
+# backup the default configuration
+cp -r conf conf_default
+# set the new configuration
+cp conf_nano/* conf
 ```
 
 To restore the default configuration:

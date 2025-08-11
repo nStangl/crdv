@@ -8,3 +8,4 @@ grep '^!.*' log.txt
 pdflatex --interaction=nonstopmode main > /dev/null
 rm main.aux main.log log.txt
 cd ../scripts
+echo "  Document saved at document/main.pdf"

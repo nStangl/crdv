@@ -1,12 +1,12 @@
 # Number of transactions to complete per test
-TRANSACTIONS=100000
+TRANSACTIONS=10000
 # Number of runs per test
 RUNS=1
 # Number of clients
 WORKERS=1
 # Number of structures
-STRUCTURES=100000
+STRUCTURES=1000
 # List with engines to test
-ENGINES="crdv riak pg_crdt"
+ENGINES="crdv"
 # Structure types to test
 TYPES="map"

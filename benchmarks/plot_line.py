@@ -87,7 +87,7 @@ for file in args.files:
         validFiles.append(file)
 
 if len(validFiles) == 0:
-    exit(f'Error: No valid file to read.')
+    exit(f'Warning: No files to read.')
 
 # read csvs
 dfs = []
