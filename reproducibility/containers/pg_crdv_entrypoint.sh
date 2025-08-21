@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 cron
-service postgresql start
+
+pg_ctlcluster 16 main start
 
 until pg_isready -h localhost -p 5432 > /dev/null 2>&1; do
   echo "Waiting for Postgres to be ready..."
@@ -20,8 +21,6 @@ execute_sql_files() {
 
 execute_sql_files "$SCHEMA_DIR"
 
-if [ "$1" != "" ]; then
- exec "$@"
-else
-  exec pg_ctlcluster 16 main start --foreground
-fi
+pg_ctlcluster 16 main stop
+
+exec pg_ctlcluster 16 main start --foreground
