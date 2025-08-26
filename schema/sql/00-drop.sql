@@ -156,6 +156,8 @@ DROP FUNCTION IF EXISTS vclock_max;
 DROP FUNCTION IF EXISTS next_hlc;
 DROP TABLE IF EXISTS public.clusterinfo;
 DROP FUNCTION IF EXISTS public.siteid();
+DROP FUNCTION IF EXISTS public.is_schema_ready();
+DROP TABLE IF EXISTS public.schemaready;
 DROP TYPE IF EXISTS public.vclock_and_hlc CASCADE;
 DROP TYPE IF EXISTS public.mentrymvr CASCADE;
 DROP TYPE IF EXISTS public.mentry CASCADE;
