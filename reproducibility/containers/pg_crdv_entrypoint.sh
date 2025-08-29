@@ -14,8 +14,7 @@ SCHEMA_DIR="schema/sql"
 execute_sql_files() {
   local folder="$1"
   for file in $(find "$folder" -type f -name "*.sql" | sort); do
-    echo "Executing $file"
-    psql -U postgres -d testdb -f "$file"
+    psql -q -v ON_ERROR_STOP=1 -U postgres -d testdb -f "$file"
   done
 }
 
