@@ -6,10 +6,10 @@ CREATE VIEW DataLocal AS
 
 -- Auxiliary view that unions the Local and Shared rows
 CREATE VIEW LocalAndShared AS
-    SELECT id, key, type, data, site, lts, pts, op, ctid
+    SELECT id, key, type, data, site, lts, pts, op, merged_at, ctid
     FROM Local
     UNION ALL
-    SELECT id, key, type, data, site, lts, pts, op, ctid
+    SELECT id, key, type, data, site, lts, pts, op, NULL::bigint AS merged_at, ctid
     FROM Shared;
 
 

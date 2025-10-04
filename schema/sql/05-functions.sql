@@ -326,7 +326,7 @@ RETURNS void AS $$
         PERFORM _delete_past_ops(id_, key_, lts_);
 
         INSERT INTO Local
-        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_);
+        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, currentTimeMillis());
 
         -- update the wall clock
         PERFORM setval('WallClockSeq', greatest((pts_).physical_time, (SELECT last_value FROM WallClockSeq)) , true);

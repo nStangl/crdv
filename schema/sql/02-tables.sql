@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS Local (
     site int,
     lts vclock,
     pts hlc,
-    op "char"
+    op "char",
+    merged_at bigint
 );
 CREATE INDEX IF NOT EXISTS Local_idx ON Local (id, key );
 
