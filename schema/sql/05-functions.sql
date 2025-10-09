@@ -1,11 +1,3 @@
--- Returns the current time in milliseconds since epoch
-CREATE OR REPLACE FUNCTION currentTimeMillis() RETURNS bigint AS $$
-BEGIN
-    RETURN round(extract(epoch FROM clock_timestamp()) * 1000);
-END;
-$$ LANGUAGE PLPGSQL;
-
-
 -- Returns the site's identifier
 CREATE OR REPLACE FUNCTION siteId() RETURNS int AS $$
 BEGIN
@@ -154,7 +146,7 @@ CREATE OR REPLACE FUNCTION addRemoteSite(site_id_ integer, host_ varchar, port_ 
 
         EXECUTE format(
             'CREATE OR REPLACE VIEW DataAll AS
-                SELECT id, key, type, data, site, lts, pts, op, ctid
+                SELECT id, key, type, data, site, lts, pts, op, merged_at, ctid
                 FROM (
                     WITH potential_max AS (
                         WITH maxes AS (
@@ -168,7 +160,7 @@ CREATE OR REPLACE FUNCTION addRemoteSite(site_id_ integer, host_ varchar, port_ 
                                 FROM LocalAndShared
                             ) t_
                         )
-                        SELECT maxes.id, maxes.key, type, data, site, lts, pts, op, ctid
+                        SELECT maxes.id, maxes.key, type, data, site, lts, pts, op, merged_at, ctid
                         FROM LocalAndShared, maxes
                         WHERE LocalAndShared.id = maxes.id AND LocalAndShared.key = maxes.key
                             AND (%s)
@@ -177,7 +169,7 @@ CREATE OR REPLACE FUNCTION addRemoteSite(site_id_ integer, host_ varchar, port_ 
                     FROM potential_max t1
                     JOIN LocalAndShared t2 ON t1.id = t2.id AND t1.key = t2.key
                 ) t
-                GROUP BY id, key, type, data, site, lts, pts, op, ctid
+                GROUP BY id, key, type, data, site, lts, pts, op, merged_at, ctid
                 HAVING bool_and(lte) = true;
         ', array_to_string(max_lts, ', '), array_to_string(match_lts, ' OR '));
 

@@ -18,7 +18,7 @@ CREATE VIEW LocalAndShared AS
 -- both tables always hold different data.
 -- (when new sites are added, this view will be replaced by another which considers the extra timestamps)
 CREATE VIEW DataAll AS
-    SELECT id, key, type, data, site, lts, pts, op, ctid
+    SELECT id, key, type, data, site, lts, pts, op, merged_at, ctid
     FROM (
         WITH potential_max AS (
             WITH maxes AS not materialized (
@@ -32,7 +32,7 @@ CREATE VIEW DataAll AS
                     FROM LocalAndShared
                 ) t_
             )
-            SELECT maxes.id, maxes.key, type, data, site, lts, pts, op, ctid
+            SELECT maxes.id, maxes.key, type, data, site, lts, pts, op, merged_at, ctid
             FROM LocalAndShared, maxes
             WHERE LocalAndShared.id = maxes.id AND LocalAndShared.key = maxes.key
                 AND lts[1] = maxes.m[1]
@@ -42,7 +42,7 @@ CREATE VIEW DataAll AS
         JOIN LocalAndShared t2
             ON t1.id = t2.id AND t1.key = t2.key
     ) t
-    GROUP BY id, key, type, data, site, lts, pts, op, ctid
+    GROUP BY id, key, type, data, site, lts, pts, op, merged_at, ctid
     HAVING bool_and(lte) = true;
 
 
