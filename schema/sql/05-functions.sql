@@ -42,9 +42,7 @@ CREATE OR REPLACE FUNCTION initSite(site_id_ integer) RETURNS boolean AS $$
             EXECUTE format(
                 'CREATE PUBLICATION Shared_Pub '
                 'FOR TABLE shared '
-                'WHERE (site = %s) '
-                'WITH (publish = ''insert'');',
-                site_id_
+                'WITH (publish = ''insert'');'
             );
 
             CREATE INDEX ON Local ((lts[1]));
@@ -284,6 +282,19 @@ BEGIN
 END;
 $$ LANGUAGE PLPGSQL;
 
+-- Checks if an operation already exists in Local table
+-- Returns true if operation exists (exact match or superseded by newer operation)
+CREATE OR REPLACE FUNCTION _is_operation_already_in_local(id_ varchar, key_ varchar, lts_ vclock) RETURNS boolean AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1
+        FROM Local
+        WHERE id = id_
+            AND key = key_
+            AND vclock_lte(lts_, lts)
+    );
+END;
+$$ LANGUAGE PLPGSQL;
 
 -- computes whether this operation is already obsolete in the context of the CRDT;
 -- (used by the merge function)
@@ -294,8 +305,7 @@ BEGIN
     FROM Local
     WHERE id = id_
         AND key = key_
-        AND vclock_lte(lts_, lts)
-        AND lts_ <> lts;
+        AND vclock_lte(lts_, lts);
 END;
 $$ LANGUAGE PLPGSQL;
 

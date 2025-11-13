@@ -33,6 +33,24 @@ CREATE TABLE IF NOT EXISTS ClusterInfo (
     addr varchar -- site address
 );
 
+-- BEFORE INSERT trigger to prevent duplicate operations from entering Shared table
+-- Breaks infinite replication loop
+CREATE OR REPLACE FUNCTION Shared_before_insert_dedup_function() RETURNS trigger AS $$
+BEGIN
+    -- check if an operation already exists in Local
+    IF _is_operation_already_in_local(new.id, new.key, new.lts) THEN
+        -- return null to cancel the insert
+        RETURN NULL;
+    END IF;
+    -- Operation is new, proceed with insert
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER Shared_before_insert_dedup_trigger
+BEFORE INSERT ON Shared
+FOR EACH ROW
+EXECUTE FUNCTION Shared_before_insert_dedup_function();
 
 -- Trigger to process local Shared inserts under the sync mode
 CREATE OR REPLACE FUNCTION Shared_insert_local_sync_function() RETURNS trigger AS $$
