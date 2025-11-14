@@ -42,7 +42,9 @@ CREATE OR REPLACE FUNCTION initSite(site_id_ integer) RETURNS boolean AS $$
             EXECUTE format(
                 'CREATE PUBLICATION Shared_Pub '
                 'FOR TABLE shared '
-                'WITH (publish = ''insert'');'
+                'WHERE (site = %s OR hops <= 3) '
+                'WITH (publish = ''insert'');',
+                site_id_
             );
 
             CREATE INDEX ON Local ((lts[1]));
@@ -293,6 +295,39 @@ BEGIN
             AND key = key_
             AND vclock_lte(lts_, lts)
     );
+END;
+$$ LANGUAGE PLPGSQL;
+
+-- Checks if an operation already exists in Local table OR is currently in Shared table
+-- Returns true if:
+--   1. Operation exists in Local (exact match or superseded by newer operation)
+--   2. Operation is currently in Shared (being processed by another thread)
+CREATE OR REPLACE FUNCTION _is_operation_in_local_or_shared(id_ varchar, key_ varchar, lts_ vclock) RETURNS boolean AS $$
+BEGIN
+    -- Check Local table first (most operations end up here)
+    IF EXISTS (
+        SELECT 1
+        FROM Local
+        WHERE id = id_
+            AND key = key_
+            AND vclock_lte(lts_, lts)
+    ) THEN
+        RETURN TRUE;
+    END IF;
+
+    -- Check Shared table (for operations currently being processed)
+    -- Use exact match (lts = lts_) because we only care about exact duplicates in flight
+    IF EXISTS (
+        SELECT 1
+        FROM Shared
+        WHERE id = id_
+            AND key = key_
+            AND lts = lts_
+    ) THEN
+        RETURN TRUE;
+    END IF;
+
+    RETURN FALSE;
 END;
 $$ LANGUAGE PLPGSQL;
 

@@ -22,9 +22,12 @@ CREATE TABLE Shared (
     lts vclock,
     pts hlc,
     op "char",
-    seq serial
+    seq serial,
+    hops int DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS Shared_idx ON Shared (id, key);
+-- Index for fast deduplication lookups in BEFORE INSERT trigger (do we really need this?)
+CREATE INDEX IF NOT EXISTS Shared_dedup_idx ON Shared (id, key, lts);
 
 -- Stores information about the cluster:
 CREATE TABLE IF NOT EXISTS ClusterInfo (
@@ -34,15 +37,23 @@ CREATE TABLE IF NOT EXISTS ClusterInfo (
 );
 
 -- BEFORE INSERT trigger to prevent duplicate operations from entering Shared table
--- Breaks infinite replication loop
+-- Implements TTL-based forwarding with hop counter
 CREATE OR REPLACE FUNCTION Shared_before_insert_dedup_function() RETURNS trigger AS $$
 BEGIN
-    -- check if an operation already exists in Local
-    IF _is_operation_already_in_local(new.id, new.key, new.lts) THEN
-        -- return null to cancel the insert
+    -- Only increment hop counter for replicated operations (site != siteId())
+    -- Local writes have site = siteId(), should stay at hops = 0
+    -- This enables full TTL-based propagation through the overlay
+    IF new.site != siteId() THEN
+        new.hops := new.hops + 1;
+    END IF;
+
+    -- Check if operation already exists in Local or is currently in Shared
+    IF _is_operation_in_local_or_shared(new.id, new.key, new.lts) THEN
+        -- Return NULL to cancel the insert
         RETURN NULL;
     END IF;
-    -- Operation is new, proceed with insert
+
+    -- Operation is new and not currently being processed, proceed with insert
     RETURN new;
 END;
 $$ LANGUAGE plpgsql;
@@ -59,12 +70,13 @@ BEGIN
     PERFORM merge(new.id, new.key, new.type, new.data, new.site, new.lts, new.pts, new.op);
 
     -- delete op from the Shared table
-    DELETE
-    FROM Shared
-    WHERE id = new.id
-        AND key = new.key
-        AND site = new.site
-        AND seq = new.seq;
+   -- don't delete immediately, let merge_daemon hanlde cleanup every 1 second
+   -- DELETE
+   -- FROM Shared
+   -- WHERE id = new.id
+    --     AND key = new.key
+    --     AND site = new.site
+    --     AND seq = new.seq;
 
     RETURN new;
 END;
