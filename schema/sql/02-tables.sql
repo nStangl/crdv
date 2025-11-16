@@ -37,16 +37,8 @@ CREATE TABLE IF NOT EXISTS ClusterInfo (
 );
 
 -- BEFORE INSERT trigger to prevent duplicate operations from entering Shared table
--- Implements TTL-based forwarding with hop counter
 CREATE OR REPLACE FUNCTION Shared_before_insert_dedup_function() RETURNS trigger AS $$
 BEGIN
-    -- Only increment hop counter for replicated operations (site != siteId())
-    -- Local writes have site = siteId(), should stay at hops = 0
-    -- This enables full TTL-based propagation through the overlay
-    IF new.site != siteId() THEN
-        new.hops := new.hops + 1;
-    END IF;
-
     -- Check if operation already exists in Local or is currently in Shared
     IF _is_operation_in_local_or_shared(new.id, new.key, new.lts) THEN
         -- Return NULL to cancel the insert
@@ -58,10 +50,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- AFTER INSERT trigger to increment hop counter (can't do in BEFORE because logical replication overrides)
+CREATE OR REPLACE FUNCTION Shared_after_insert_increment_hops_function() RETURNS trigger AS $$
+BEGIN
+    -- Only increment for replicated operations (site != siteId())
+    -- Local writes have site = siteId(), should stay at hops = 0
+    IF new.site != siteId() THEN
+        UPDATE Shared
+        SET hops = hops + 1
+        WHERE seq = new.seq;
+    END IF;
+
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE TRIGGER Shared_before_insert_dedup_trigger
 BEFORE INSERT ON Shared
 FOR EACH ROW
 EXECUTE FUNCTION Shared_before_insert_dedup_function();
+
+-- Trigger to increment hop counter after insert (must be AFTER because logical replication overrides BEFORE changes)
+CREATE TRIGGER Shared_after_insert_increment_hops_trigger
+AFTER INSERT ON Shared
+FOR EACH ROW
+EXECUTE FUNCTION Shared_after_insert_increment_hops_function();
 
 -- Trigger to process local Shared inserts under the sync mode
 CREATE OR REPLACE FUNCTION Shared_insert_local_sync_function() RETURNS trigger AS $$
