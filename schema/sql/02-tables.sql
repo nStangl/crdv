@@ -40,7 +40,9 @@ CREATE TABLE IF NOT EXISTS ClusterInfo (
 CREATE OR REPLACE FUNCTION Shared_before_insert_dedup_function() RETURNS trigger AS $$
 BEGIN
     -- Check if operation already exists in Local or is currently in Shared
-    IF _is_operation_in_local_or_shared(new.id, new.key, new.lts) THEN
+    -- IMPORTANT: Use schema-qualified function name for logical replication compatibility
+    -- replication worker will complain otherwise
+    IF public._is_operation_in_local_or_shared(new.id, new.key, new.lts) THEN
         -- Return NULL to cancel the insert
         RETURN NULL;
     END IF;
@@ -50,31 +52,41 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- AFTER INSERT trigger to increment hop counter (can't do in BEFORE because logical replication overrides)
-CREATE OR REPLACE FUNCTION Shared_after_insert_increment_hops_function() RETURNS trigger AS $$
-BEGIN
-    -- Only increment for replicated operations (site != siteId())
-    -- Local writes have site = siteId(), should stay at hops = 0
-    IF new.site != siteId() THEN
-        UPDATE Shared
-        SET hops = hops + 1
-        WHERE seq = new.seq;
-    END IF;
-
-    RETURN new;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE TRIGGER Shared_before_insert_dedup_trigger
 BEFORE INSERT ON Shared
 FOR EACH ROW
 EXECUTE FUNCTION Shared_before_insert_dedup_function();
 
--- Trigger to increment hop counter after insert (must be AFTER because logical replication overrides BEFORE changes)
-CREATE TRIGGER Shared_after_insert_increment_hops_trigger
-AFTER INSERT ON Shared
+-- enable as ALWAYS trigger so it fires during both local inserts AND replication
+-- this is critical for preventing duplicates from multiple replication paths
+-- See(!) https://www.postgresql.org/docs/current/logical-replication-architecture.html
+ALTER TABLE Shared ENABLE ALWAYS TRIGGER Shared_before_insert_dedup_trigger;
+
+-- BEFORE INSERT REPLICA trigger to increment hop counter during replication
+-- This is the KEY to making hops TTL work with logical replication:
+-- - REPLICA triggers fire during logical replication (session_replication_role = 'replica')
+-- - BEFORE INSERT can modify NEW row before it's written
+-- - The incremented hops value is stored and seen by publication WHERE clause
+CREATE OR REPLACE FUNCTION Shared_before_insert_increment_hops_function() RETURNS trigger AS $$
+BEGIN
+    -- Only increment for operations from remote sites
+    -- Local writes (site = siteId()) should stay at hops = 0
+    -- IMPORTANT: Use schema-qualified function name for logical replication compatibility
+    IF NEW.site != public.siteId() THEN
+        NEW.hops := NEW.hops + 1;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER Shared_before_insert_increment_hops_trigger
+BEFORE INSERT ON Shared
 FOR EACH ROW
-EXECUTE FUNCTION Shared_after_insert_increment_hops_function();
+EXECUTE FUNCTION Shared_before_insert_increment_hops_function();
+
+-- enable as REPLICA trigger so it ONLY fires during replication, not local inserts
+ALTER TABLE Shared ENABLE REPLICA TRIGGER Shared_before_insert_increment_hops_trigger;
 
 -- Trigger to process local Shared inserts under the sync mode
 CREATE OR REPLACE FUNCTION Shared_insert_local_sync_function() RETURNS trigger AS $$

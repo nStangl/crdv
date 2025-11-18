@@ -2,7 +2,7 @@
 CREATE OR REPLACE FUNCTION siteId() RETURNS int AS $$
 BEGIN
     RETURN site_id
-    FROM ClusterInfo
+    FROM public.ClusterInfo
     WHERE is_local;
 END;
 $$ LANGUAGE PLPGSQL;
@@ -42,14 +42,14 @@ CREATE OR REPLACE FUNCTION initSite(site_id_ integer) RETURNS boolean AS $$
             EXECUTE format(
                 'CREATE PUBLICATION Shared_Pub '
                 'FOR TABLE shared '
-                'WHERE (site = %s OR hops <= 3) '
+                'WHERE (site = %s OR hops <= 2) '
                 'WITH (publish = ''insert'');',
                 site_id_
             );
 
             CREATE INDEX ON Local ((lts[1]));
 
-            PERFORM schedule_merge_daemon(1, 1, 100);
+            PERFORM schedule_merge_daemon(1, 20, 100);
 
             RETURN true;
         ELSE
@@ -305,12 +305,13 @@ $$ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION _is_operation_in_local_or_shared(id_ varchar, key_ varchar, lts_ vclock) RETURNS boolean AS $$
 BEGIN
     -- Check Local table first (most operations end up here)
+    -- IMPORTANT: Use schema-qualified table names for logical replication compatibility
     IF EXISTS (
         SELECT 1
-        FROM Local
+        FROM public.Local
         WHERE id = id_
             AND key = key_
-            AND vclock_lte(lts_, lts)
+            AND public.vclock_lte(lts_, lts)
     ) THEN
         RETURN TRUE;
     END IF;
@@ -319,7 +320,7 @@ BEGIN
     -- Use exact match (lts = lts_) because we only care about exact duplicates in flight
     IF EXISTS (
         SELECT 1
-        FROM Shared
+        FROM public.Shared
         WHERE id = id_
             AND key = key_
             AND lts = lts_
@@ -372,6 +373,8 @@ $$ LANGUAGE PLPGSQL;
 
 
 -- Adds the operation into the Shared table
+-- TODO: Fix column count bug - this INSERT provides 9 values for 10 columns (missing hops)
+-- Should use column names: INSERT INTO Shared (id, key, type, data, site, lts, pts, op) VALUES (...)
 CREATE OR REPLACE FUNCTION handleOp(id_ varchar, key_ varchar, type_ "char", data_ varchar, site_ int, lts_ vclock, pts_ hlc, op_ "char") RETURNS void AS $$
     BEGIN
         INSERT INTO Shared VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, default);
