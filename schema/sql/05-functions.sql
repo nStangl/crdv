@@ -42,7 +42,7 @@ CREATE OR REPLACE FUNCTION initSite(site_id_ integer) RETURNS boolean AS $$
             EXECUTE format(
                 'CREATE PUBLICATION Shared_Pub '
                 'FOR TABLE shared '
-                'WHERE (site = %s OR hops <= 2) '
+                'WHERE (hops < {{MAX_HOPS}}) '
                 'WITH (publish = ''insert'');',
                 site_id_
             );

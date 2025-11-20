@@ -10,11 +10,12 @@ until pg_isready -h localhost -p 5432 > /dev/null 2>&1; do
 done
 
 SCHEMA_DIR="schema/sql"
+MAX_HOPS=${MAX_HOPS:-1}
 
 execute_sql_files() {
   local folder="$1"
   for file in $(find "$folder" -type f -name "*.sql" ! -name "00-drop.sql" | sort); do
-    psql -q -v ON_ERROR_STOP=1 -U postgres -d testdb -f "$file"
+    sed "s/{{MAX_HOPS}}/$MAX_HOPS/g" "$file" | psql -q -v ON_ERROR_STOP=1 -U postgres -d testdb
   done
 }
 
