@@ -43,8 +43,7 @@ CREATE OR REPLACE FUNCTION initSite(site_id_ integer) RETURNS boolean AS $$
                 'CREATE PUBLICATION Shared_Pub '
                 'FOR TABLE shared '
                 'WHERE (hops < {{MAX_HOPS}}) '
-                'WITH (publish = ''insert'');',
-                site_id_
+                'WITH (publish = ''insert'');'
             );
 
             CREATE INDEX ON Local ((lts[1]));
