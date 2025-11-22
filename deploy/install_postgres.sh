@@ -1,8 +1,8 @@
 #!/bin/bash
 # Deploys two postgres instances, with versions 16 and 15.
 
-PG_VERSIONS=(16 15)
-PORTS=(5432 5433)
+PG_VERSIONS=(16)
+PORTS=(5432)
 
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget ca-certificates gnupg2 lsb-release
@@ -24,7 +24,8 @@ for i in $(seq 0 $((${#PG_VERSIONS[*]}-1))); do
 
     sudo sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/${version}/main/postgresql.conf
     sudo sed -i "s/max_connections = 100/max_connections = 2000/" /etc/postgresql/${version}/main/postgresql.conf
-    mem=$(( $(free -g | awk '/^Mem:/{print $2}') / 2 ))
+    #mem=$(( $(free -g | awk '/^Mem:/{print $2}') / 2 )) # TODO fails when deploying on AWS
+    mem=8
     sudo sed -i "s/shared_buffers = .*/shared_buffers = ${mem}GB/" /etc/postgresql/${version}/main/postgresql.conf
     sudo sed -i "s/#work_mem = .*/work_mem = 1GB/" /etc/postgresql/${version}/main/postgresql.conf
     sudo sed -i "s/max_wal_size = .*/max_wal_size = 10GB/" /etc/postgresql/${version}/main/postgresql.conf
