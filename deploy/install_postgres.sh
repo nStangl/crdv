@@ -24,8 +24,7 @@ for i in $(seq 0 $((${#PG_VERSIONS[*]}-1))); do
 
     sudo sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/${version}/main/postgresql.conf
     sudo sed -i "s/max_connections = 100/max_connections = 2000/" /etc/postgresql/${version}/main/postgresql.conf
-    #mem=$(( $(free -g | awk '/^Mem:/{print $2}') / 2 )) # TODO fails when deploying on AWS
-    mem=8
+    mem=$(( $(free -g | awk '/^Mem:/{print $2}') / 2 ))
     sudo sed -i "s/shared_buffers = .*/shared_buffers = ${mem}GB/" /etc/postgresql/${version}/main/postgresql.conf
     sudo sed -i "s/#work_mem = .*/work_mem = 1GB/" /etc/postgresql/${version}/main/postgresql.conf
     sudo sed -i "s/max_wal_size = .*/max_wal_size = 10GB/" /etc/postgresql/${version}/main/postgresql.conf
