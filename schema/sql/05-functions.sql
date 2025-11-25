@@ -346,7 +346,7 @@ $$ LANGUAGE PLPGSQL;
 
 
 -- Merges a new operation with the existing data
-CREATE OR REPLACE FUNCTION merge(id_ varchar, key_ varchar, type_ "char", data_ varchar, site_ int, lts_ vclock, pts_ hlc, op_ "char")
+CREATE OR REPLACE FUNCTION merge(id_ varchar, key_ varchar, type_ "char", data_ varchar, site_ int, lts_ vclock, pts_ hlc, op_ "char", merged_at_ bigint)
 RETURNS void AS $$
     BEGIN
         -- acquire a lock to the element
@@ -363,7 +363,7 @@ RETURNS void AS $$
         PERFORM _delete_past_ops(id_, key_, lts_);
 
         INSERT INTO Local
-        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, currentTimeMillis());
+        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, merged_at_);
 
         -- update the wall clock
         PERFORM setval('WallClockSeq', greatest((pts_).physical_time, (SELECT last_value FROM WallClockSeq)) , true);
@@ -372,11 +372,10 @@ $$ LANGUAGE PLPGSQL;
 
 
 -- Adds the operation into the Shared table
--- TODO: Fix column count bug - this INSERT provides 9 values for 10 columns (missing hops)
--- Should use column names: INSERT INTO Shared (id, key, type, data, site, lts, pts, op) VALUES (...)
 CREATE OR REPLACE FUNCTION handleOp(id_ varchar, key_ varchar, type_ "char", data_ varchar, site_ int, lts_ vclock, pts_ hlc, op_ "char") RETURNS void AS $$
     BEGIN
-        INSERT INTO Shared VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, default);
+        INSERT INTO Shared (id, key, type, data, site, lts, pts, op)
+        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_);
     END;
 $$ LANGUAGE PLPGSQL;
 
@@ -384,7 +383,7 @@ $$ LANGUAGE PLPGSQL;
 -- Merges a batch of a partition of the Shared table.
 CREATE OR REPLACE FUNCTION merge_batch(batch xid[]) RETURNS bool AS $$
 BEGIN
-    PERFORM merge(id, key, type, data, site, lts, pts, op)
+    PERFORM merge(id, key, type, data, site, lts, pts, op, arrival_time)
     FROM Shared
     WHERE xmin IN (
         SELECT unnest(batch)

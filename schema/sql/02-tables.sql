@@ -23,7 +23,8 @@ CREATE TABLE Shared (
     pts hlc,
     op "char",
     seq serial,
-    hops int DEFAULT 0
+    hops int DEFAULT 0,
+    arrival_time bigint DEFAULT currentTimeMillis()
 );
 CREATE INDEX IF NOT EXISTS Shared_idx ON Shared (id, key);
 -- Index for fast deduplication lookups in BEFORE INSERT trigger (do we really need this?)
@@ -92,7 +93,7 @@ ALTER TABLE Shared ENABLE REPLICA TRIGGER Shared_before_insert_increment_hops_tr
 CREATE OR REPLACE FUNCTION Shared_insert_local_sync_function() RETURNS trigger AS $$
 BEGIN
     -- merge op
-    PERFORM merge(new.id, new.key, new.type, new.data, new.site, new.lts, new.pts, new.op);
+    PERFORM merge(new.id, new.key, new.type, new.data, new.site, new.lts, new.pts, new.op, new.arrival_time);
 
     -- delete op from the Shared table
    -- don't delete immediately, let merge_daemon hanlde cleanup every 1 second
