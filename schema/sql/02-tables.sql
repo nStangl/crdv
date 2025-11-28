@@ -89,6 +89,25 @@ EXECUTE FUNCTION Shared_before_insert_increment_hops_function();
 -- enable as REPLICA trigger so it ONLY fires during replication, not local inserts
 ALTER TABLE Shared ENABLE REPLICA TRIGGER Shared_before_insert_increment_hops_trigger;
 
+-- Trigger to set arrival_time to current time on receiving node during replication
+-- This ensures each node records when the operation actually arrived, not when it was created
+CREATE OR REPLACE FUNCTION Shared_before_insert_set_arrival_time_function() RETURNS trigger AS $$
+BEGIN
+    -- Override the replicated arrival_time with current time on this node
+    -- IMPORTANT: Use schema-qualified function name for logical replication compatibility
+    NEW.arrival_time := public.currentTimeMillis();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER Shared_before_insert_set_arrival_time_trigger
+BEFORE INSERT ON Shared
+FOR EACH ROW
+EXECUTE FUNCTION Shared_before_insert_set_arrival_time_function();
+
+-- enable as REPLICA trigger so it ONLY fires during replication, not local inserts
+ALTER TABLE Shared ENABLE REPLICA TRIGGER Shared_before_insert_set_arrival_time_trigger;
+
 -- Trigger to process local Shared inserts under the sync mode
 CREATE OR REPLACE FUNCTION Shared_insert_local_sync_function() RETURNS trigger AS $$
 BEGIN
