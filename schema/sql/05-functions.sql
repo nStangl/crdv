@@ -2,7 +2,7 @@
 CREATE OR REPLACE FUNCTION siteId() RETURNS int AS $$
 BEGIN
     RETURN site_id
-    FROM ClusterInfo
+    FROM public.ClusterInfo
     WHERE is_local;
 END;
 $$ LANGUAGE PLPGSQL;
@@ -42,14 +42,13 @@ CREATE OR REPLACE FUNCTION initSite(site_id_ integer) RETURNS boolean AS $$
             EXECUTE format(
                 'CREATE PUBLICATION Shared_Pub '
                 'FOR TABLE shared '
-                'WHERE (site = %s) '
-                'WITH (publish = ''insert'');',
-                site_id_
+                'WHERE (hops < 3) '
+                'WITH (publish = ''insert'');'
             );
 
             CREATE INDEX ON Local ((lts[1]));
 
-            PERFORM schedule_merge_daemon(1, 1, 100);
+            PERFORM schedule_merge_daemon(1, 20, 100);
 
             RETURN true;
         ELSE
@@ -284,6 +283,39 @@ BEGIN
 END;
 $$ LANGUAGE PLPGSQL;
 
+-- Checks if an operation already exists in Local table OR is currently in Shared table
+-- Returns true if:
+--   1. Operation exists in Local (exact match or superseded by newer operation)
+--   2. Operation is currently in Shared (being processed by another thread)
+CREATE OR REPLACE FUNCTION _is_operation_in_local_or_shared(id_ varchar, key_ varchar, lts_ vclock) RETURNS boolean AS $$
+BEGIN
+    -- Check Local table first (most operations end up here)
+    -- IMPORTANT: Use schema-qualified table names for logical replication compatibility
+    IF EXISTS (
+        SELECT 1
+        FROM public.Local
+        WHERE id = id_
+            AND key = key_
+            AND public.vclock_lte(lts_, lts)
+    ) THEN
+        RETURN TRUE;
+    END IF;
+
+    -- Check Shared table (for operations currently being processed)
+    -- Use exact match (lts = lts_) because we only care about exact duplicates in flight
+    IF EXISTS (
+        SELECT 1
+        FROM public.Shared
+        WHERE id = id_
+            AND key = key_
+            AND lts = lts_
+    ) THEN
+        RETURN TRUE;
+    END IF;
+
+    RETURN FALSE;
+END;
+$$ LANGUAGE PLPGSQL;
 
 -- computes whether this operation is already obsolete in the context of the CRDT;
 -- (used by the merge function)
@@ -294,14 +326,13 @@ BEGIN
     FROM Local
     WHERE id = id_
         AND key = key_
-        AND vclock_lte(lts_, lts)
-        AND lts_ <> lts;
+        AND vclock_lte(lts_, lts);
 END;
 $$ LANGUAGE PLPGSQL;
 
 
 -- Merges a new operation with the existing data
-CREATE OR REPLACE FUNCTION merge(id_ varchar, key_ varchar, type_ "char", data_ varchar, site_ int, lts_ vclock, pts_ hlc, op_ "char")
+CREATE OR REPLACE FUNCTION merge(id_ varchar, key_ varchar, type_ "char", data_ varchar, site_ int, lts_ vclock, pts_ hlc, op_ "char", merged_at_ bigint)
 RETURNS void AS $$
     BEGIN
         -- acquire a lock to the element
@@ -318,7 +349,7 @@ RETURNS void AS $$
         PERFORM _delete_past_ops(id_, key_, lts_);
 
         INSERT INTO Local
-        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, currentTimeMillis());
+        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, merged_at_);
 
         -- update the wall clock
         PERFORM setval('WallClockSeq', greatest((pts_).physical_time, (SELECT last_value FROM WallClockSeq)) , true);
@@ -329,7 +360,8 @@ $$ LANGUAGE PLPGSQL;
 -- Adds the operation into the Shared table
 CREATE OR REPLACE FUNCTION handleOp(id_ varchar, key_ varchar, type_ "char", data_ varchar, site_ int, lts_ vclock, pts_ hlc, op_ "char") RETURNS void AS $$
     BEGIN
-        INSERT INTO Shared VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_, default);
+        INSERT INTO Shared (id, key, type, data, site, lts, pts, op)
+        VALUES (id_, key_, type_, data_, site_, lts_, pts_, op_);
     END;
 $$ LANGUAGE PLPGSQL;
 
@@ -337,7 +369,7 @@ $$ LANGUAGE PLPGSQL;
 -- Merges a batch of a partition of the Shared table.
 CREATE OR REPLACE FUNCTION merge_batch(batch xid[]) RETURNS bool AS $$
 BEGIN
-    PERFORM merge(id, key, type, data, site, lts, pts, op)
+    PERFORM merge(id, key, type, data, site, lts, pts, op, arrival_time)
     FROM Shared
     WHERE xmin IN (
         SELECT unnest(batch)

@@ -1,8 +1,8 @@
 #!/bin/bash
 # Deploys two postgres instances, with versions 16 and 15.
 
-PG_VERSIONS=(16 15)
-PORTS=(5432 5433)
+PG_VERSIONS=(16)
+PORTS=(5432)
 
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget ca-certificates gnupg2 lsb-release
