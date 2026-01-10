@@ -42,13 +42,14 @@ CREATE OR REPLACE FUNCTION initSite(site_id_ integer) RETURNS boolean AS $$
             EXECUTE format(
                 'CREATE PUBLICATION Shared_Pub '
                 'FOR TABLE shared '
-                'WHERE (hops < 3) '
-                'WITH (publish = ''insert'');'
+                'WHERE (site = %s) '
+                'WITH (publish = ''insert'');',
+                site_id_
             );
 
             CREATE INDEX ON Local ((lts[1]));
 
-            PERFORM schedule_merge_daemon(1, 20, 100);
+            PERFORM schedule_merge_daemon(1, 1, 100);
 
             RETURN true;
         ELSE
@@ -287,35 +288,35 @@ $$ LANGUAGE PLPGSQL;
 -- Returns true if:
 --   1. Operation exists in Local (exact match or superseded by newer operation)
 --   2. Operation is currently in Shared (being processed by another thread)
-CREATE OR REPLACE FUNCTION _is_operation_in_local_or_shared(id_ varchar, key_ varchar, lts_ vclock) RETURNS boolean AS $$
-BEGIN
-    -- Check Local table first (most operations end up here)
-    -- IMPORTANT: Use schema-qualified table names for logical replication compatibility
-    IF EXISTS (
-        SELECT 1
-        FROM public.Local
-        WHERE id = id_
-            AND key = key_
-            AND public.vclock_lte(lts_, lts)
-    ) THEN
-        RETURN TRUE;
-    END IF;
+-- CREATE OR REPLACE FUNCTION _is_operation_in_local_or_shared(id_ varchar, key_ varchar, lts_ vclock) RETURNS boolean AS $$
+-- BEGIN
+--     -- Check Local table first (most operations end up here)
+--     -- IMPORTANT: Use schema-qualified table names for logical replication compatibility
+--     IF EXISTS (
+--         SELECT 1
+--         FROM public.Local
+--         WHERE id = id_
+--             AND key = key_
+--             AND public.vclock_lte(lts_, lts)
+--     ) THEN
+--         RETURN TRUE;
+--     END IF;
 
-    -- Check Shared table (for operations currently being processed)
-    -- Use exact match (lts = lts_) because we only care about exact duplicates in flight
-    IF EXISTS (
-        SELECT 1
-        FROM public.Shared
-        WHERE id = id_
-            AND key = key_
-            AND lts = lts_
-    ) THEN
-        RETURN TRUE;
-    END IF;
+--     -- Check Shared table (for operations currently being processed)
+--     -- Use exact match (lts = lts_) because we only care about exact duplicates in flight
+--     IF EXISTS (
+--         SELECT 1
+--         FROM public.Shared
+--         WHERE id = id_
+--             AND key = key_
+--             AND lts = lts_
+--     ) THEN
+--         RETURN TRUE;
+--     END IF;
 
-    RETURN FALSE;
-END;
-$$ LANGUAGE PLPGSQL;
+--     RETURN FALSE;
+-- END;
+-- $$ LANGUAGE PLPGSQL;
 
 -- computes whether this operation is already obsolete in the context of the CRDT;
 -- (used by the merge function)
@@ -326,7 +327,8 @@ BEGIN
     FROM Local
     WHERE id = id_
         AND key = key_
-        AND vclock_lte(lts_, lts);
+        AND vclock_lte(lts_, lts)
+        AND lts_ <> lts;
 END;
 $$ LANGUAGE PLPGSQL;
 
