@@ -182,6 +182,133 @@ CREATE OR REPLACE FUNCTION addRemoteSite(site_id_ integer, host_ varchar, port_ 
 $$ LANGUAGE PLPGSQL;
 
 
+-- Unsubscribes from a remote site
+CREATE OR REPLACE FUNCTION unsubscribeFromRemoteSite(
+    remote_site_id_ integer,
+    drop_slot_ boolean DEFAULT false
+) RETURNS boolean AS $$
+    DECLARE
+        conn_info record;
+        subscription_name varchar;
+        slot_name varchar;
+        local_site_id integer;
+    BEGIN
+        SELECT site_id INTO local_site_id
+        FROM ClusterInfo
+        WHERE is_local;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Site not initialized.';
+        END IF;
+
+        SELECT * INTO conn_info
+        FROM ClusterInfo
+        WHERE site_id = remote_site_id_ AND NOT is_local;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Remote site % not found in ClusterInfo.', remote_site_id_;
+        END IF;
+
+        subscription_name := format('sub_%s_%s', local_site_id, remote_site_id_);
+        slot_name := format('sub_%s_%s', local_site_id, remote_site_id_);
+
+        IF NOT EXISTS (SELECT 1 FROM pg_subscription WHERE subname = subscription_name) THEN
+            -- already unsubscribed
+            RETURN true;
+        END IF;
+
+        EXECUTE format('DROP SUBSCRIPTION %I', subscription_name);
+
+        --(Optionally) drop the replication slot on remote
+        IF drop_slot_ THEN
+            BEGIN
+                EXECUTE format(
+                    'SELECT * FROM dblink(%L, %L) AS T(x text)',
+                    conn_info.addr,
+                    format('SELECT pg_drop_replication_slot(%L)', slot_name)
+                );
+            EXCEPTION WHEN others THEN
+                RAISE WARNING 'Failed to drop replication slot on remote site %: %',
+                    remote_site_id_, SQLERRM;
+            END;
+        END IF;
+
+        RETURN true;
+    END
+$$ LANGUAGE PLPGSQL;
+
+
+-- Subscribes to a remote site
+CREATE OR REPLACE FUNCTION subscribeToRemoteSite(
+    remote_site_id_ integer
+) RETURNS boolean AS $$
+    DECLARE
+        conn_info record;
+        subscription_name varchar;
+        slot_name varchar;
+        local_site_id integer;
+        slot_exists boolean;
+    BEGIN
+        SELECT site_id INTO local_site_id
+        FROM ClusterInfo
+        WHERE is_local;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Site not initialized.';
+        END IF;
+
+        SELECT * INTO conn_info
+        FROM ClusterInfo
+        WHERE site_id = remote_site_id_ AND NOT is_local;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Remote site % not found in ClusterInfo.', remote_site_id_;
+        END IF;
+
+        subscription_name := format('sub_%s_%s', local_site_id, remote_site_id_);
+        slot_name := format('sub_%s_%s', local_site_id, remote_site_id_);
+
+        -- Does subscription already exist?
+        IF EXISTS (SELECT 1 FROM pg_subscription WHERE subname = subscription_name) THEN
+            -- already subscribed
+            RETURN true;
+        END IF;
+
+        -- Check if replication slot exists on remote
+        BEGIN
+            EXECUTE format(
+                'SELECT exists FROM dblink(%L, %L) AS T(exists boolean)',
+                conn_info.addr,
+                format('SELECT EXISTS(SELECT 1 FROM pg_replication_slots WHERE slot_name = %L)', slot_name)
+            ) INTO slot_exists;
+        EXCEPTION WHEN others THEN
+            RAISE EXCEPTION 'Cannot reach remote site %: %', remote_site_id_, SQLERRM;
+        END;
+
+        -- Create slot if it does not exist
+        IF NOT slot_exists THEN
+            EXECUTE format(
+                'SELECT * FROM dblink(%L, %L) AS T(x text)',
+                conn_info.addr,
+                format('SELECT pg_create_logical_replication_slot(%L, ''pgoutput'')', slot_name)
+            );
+        END IF;
+
+        EXECUTE format(
+            'CREATE SUBSCRIPTION %I '
+            'CONNECTION %L '
+            'PUBLICATION Shared_Pub '
+            'WITH (create_slot = false, slot_name = %L)',
+            subscription_name,
+            conn_info.addr,
+            slot_name
+        );
+
+        RETURN true;
+    END
+$$ LANGUAGE PLPGSQL;
+
+
 -- Computes the next next timestamp, or a zeroed clock if it is the first one
 -- (when new sites are added, this function will be replaced by another which considers the extra ones)
 CREATE OR REPLACE FUNCTION nextTimestamp(id_ varchar) RETURNS vclock_and_hlc AS $$
